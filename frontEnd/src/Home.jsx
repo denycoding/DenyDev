@@ -7,7 +7,6 @@ import Services from "./Services";
 import Testimonials from "./Testimonials";
 import TopDevelopers from "./TopDevelopers";
 
-
 function Home() {
   return (
     <>

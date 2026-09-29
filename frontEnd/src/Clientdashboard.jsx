@@ -28,27 +28,54 @@ function Clientdashboard() {
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [placeholderIndex, setPlaceholderIndex] = useState(0);
+
+  // =========================================================
+  // TYPEWRITER PLACEHOLDER
+  // =========================================================
+
   const searchPlaceholders = [
     "Search your projects...",
-    "Search for Web Development projects...",
-    "Search for AI / ML projects...",
-    "Search for Data Science projects...",
-    "Search for DevOps projects...",
-    "Search for Cloud Computing projects...",
-    "Search for React projects...",
-    "Search for Python projects...",
-    "Search for Cybersecurity projects...",
+    "Web Development projects...",
+    "AI / ML projects...",
+    "Data Science projects...",
+    "DevOps projects...",
+    "Cloud Computing projects...",
+    "React projects...",
+    "Python projects...",
+    "Cybersecurity projects...",
   ];
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setPlaceholderIndex(
-        (prevIndex) => (prevIndex + 1) % searchPlaceholders.length,
-      );
-    }, 3000);
 
-    return () => clearInterval(interval);
-  }, []);
+  const [phraseIndex, setPhraseIndex] = useState(0);
+  const [charIndex, setCharIndex] = useState(0);
+  const [typedText, setTypedText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    const currentPhrase = searchPlaceholders[phraseIndex];
+
+    const typingSpeed = isDeleting ? 20 : 30;
+
+    const timeout = setTimeout(() => {
+      if (!isDeleting) {
+        if (charIndex < currentPhrase.length) {
+          setTypedText(currentPhrase.slice(0, charIndex + 1));
+          setCharIndex((prev) => prev + 1);
+        } else {
+          setTimeout(() => setIsDeleting(true), 1000);
+        }
+      } else {
+        if (charIndex > 0) {
+          setTypedText(currentPhrase.slice(0, charIndex - 1));
+          setCharIndex((prev) => prev - 1);
+        } else {
+          setIsDeleting(false);
+          setPhraseIndex((prev) => (prev + 1) % searchPlaceholders.length);
+        }
+      }
+    }, typingSpeed);
+
+    return () => clearTimeout(timeout);
+  }, [charIndex, isDeleting, phraseIndex]);
 
   useEffect(() => {
     const fetchDevelopers = async () => {
@@ -122,7 +149,7 @@ function Clientdashboard() {
                 setSearchText(e.target.value);
                 setSelectedCategory("");
               }}
-              placeholder={searchPlaceholders[placeholderIndex]}
+              placeholder={typedText}
               className="w-full px-4 py-4 outline-none text-black text-sm sm:text-base"
             />
           </div>
@@ -138,8 +165,6 @@ function Clientdashboard() {
           </p>
         </div>
 
-        {/* CATEGORIES */}
-
         {/* DEVELOPERS */}
         <div>
           <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-8">
@@ -152,28 +177,28 @@ function Clientdashboard() {
               </p>
             </div>
 
-            <button
-              type="button"
-              className="
-                self-start
-                sm:self-auto
-                flex
-                items-center
-                gap-2
-                bg-white
-                text-gray-800
-                px-5
-                py-2.5
-                rounded-xl
-                font-medium
-                hover:bg-gray-100
-                transition
-                shadow-lg
-              "
-            >
-              <IoFilter className="text-purple-600" size={18} />
-              Filter
-            </button>
+            <div className="flex justify-end">
+  <button
+    type="button"
+    className="
+      flex
+      items-center
+      gap-2
+      bg-white
+      text-gray-800
+      px-5
+      py-2.5
+      rounded-xl
+      font-medium
+      hover:bg-gray-100
+      transition
+      shadow-lg
+    "
+  >
+    <IoFilter className="text-purple-600" size={18} />
+    Filter
+  </button>
+</div>
           </div>
 
           {/* LOADING STATE */}

@@ -18,7 +18,9 @@ import FreelancerDetail from "./FreelancerDetail";
 import Freelancerproposal from "./Freelancerproposal";
 import ClientViewProject from "./ClientViewProject";
 import FreelancerViewProject from "./FreelancerViewProject";
-
+import Admindashboard from "./Admin/Admindashboard";
+import Clients from "./Admin/Clients";
+import Freelancers from "./Admin/Freelancers";
 function App() {
   return (
     <>
@@ -42,6 +44,9 @@ function App() {
           <Route path="/freelancerprofile" element={<Freelancerprofile />} />
           <Route path="/freelancer/:userId" element={<FreelancerDetail />} />
           <Route path="/project/:projectId" element={<Freelancerproposal />} />
+          <Route path="/admindashboard" element={<Admindashboard />} />
+          <Route path="/clients" element={<Clients />} />
+          <Route path="/freelancers" element={<Freelancers />} />
           <Route
             path="/clientprojects/:projectId"
             element={<ClientViewProject />}

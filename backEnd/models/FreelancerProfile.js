@@ -65,7 +65,7 @@ const freelancerProfileSchema = new mongoose.Schema(
       trim: true,
     },
 
-    website: {
+    portfolio: {
       type: String,
       default: "",
       trim: true,

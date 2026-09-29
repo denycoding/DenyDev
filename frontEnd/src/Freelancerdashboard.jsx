@@ -19,41 +19,67 @@ function Freelancerdashboard() {
   const user = JSON.parse(localStorage.getItem("user"));
 
   const navigate = useNavigate();
-
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [showFilters, setShowFilters] = useState(false);
-  const [placeholderIndex, setPlaceholderIndex] = useState(0);
 
   const [projects, setProjects] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const projectsPerPage = 9;
 
   // =========================================================
-  // SEARCH PLACEHOLDERS
+  // TYPEWRITER PLACEHOLDER
   // =========================================================
 
   const searchPlaceholders = [
-    "Search for Full Stack projects...",
-    "Search for React projects...",
-    "Search for AI / ML projects...",
-    "Search for Data Science projects...",
-    "Search for Python projects...",
-    "Search for DevOps projects...",
-    "Search for Cloud Computing projects...",
-    "Search for Web Development projects...",
-    "Search for Node.js projects...",
-    "Search for Cybersecurity projects...",
+    "Search for...",
+    "Full Stack projects...",
+    "React projects...",
+    "AI / ML projects...",
+    "Data Science projects...",
+    "Python projects...",
+    "DevOps projects...",
+    "Cloud Computing projects...",
+    "Web Development projects...",
+    "Node.js projects...",
+    "Cybersecurity projects...",
   ];
 
+  const [phraseIndex, setPhraseIndex] = useState(0);
+  const [charIndex, setCharIndex] = useState(0);
+  const [typedText, setTypedText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+
   useEffect(() => {
-    const interval = setInterval(() => {
-      setPlaceholderIndex((prev) => (prev + 1) % searchPlaceholders.length);
-    }, 2000);
+    const currentPhrase = searchPlaceholders[phraseIndex];
 
-    return () => clearInterval(interval);
-  }, []);
+    // Typing speed vs deleting speed vs pause at full phrase
+    const typingSpeed = isDeleting ? 20 : 30;
 
+    const timeout = setTimeout(() => {
+      if (!isDeleting) {
+        // Typing forward
+        if (charIndex < currentPhrase.length) {
+          setTypedText(currentPhrase.slice(0, charIndex + 1));
+          setCharIndex((prev) => prev + 1);
+        } else {
+          // Pause at the full phrase before deleting
+          setTimeout(() => setIsDeleting(true), 1000);
+        }
+      } else {
+        // Deleting backward
+        if (charIndex > 0) {
+          setTypedText(currentPhrase.slice(0, charIndex - 1));
+          setCharIndex((prev) => prev - 1);
+        } else {
+          setIsDeleting(false);
+          setPhraseIndex((prev) => (prev + 1) % searchPlaceholders.length);
+        }
+      }
+    }, typingSpeed);
+
+    return () => clearTimeout(timeout);
+  }, [charIndex, isDeleting, phraseIndex]);
   // =========================================================
   // FETCH PROJECTS
   // =========================================================
@@ -176,10 +202,10 @@ function Freelancerdashboard() {
 
             <input
               type="search"
-              placeholder={searchPlaceholders[placeholderIndex]}
+              placeholder={typedText}
               value={search}
               onChange={(e) => handleSearch(e.target.value)}
-              className="w-full px-4 py-3.5 outline-none text-gray-800 text-sm sm:text-base"
+              className="w-full px-4 py-3.5 outline-none text-black text-sm sm:text-base"
             />
           </div>
         </div>
@@ -350,7 +376,7 @@ function Freelancerdashboard() {
                           </p>
                         </div>
 
-                        <p className="text-sm font-bold text-white">
+                        <p className="text-sm  font-bold text-white">
                           ₹
                           {Number(project.budgetMin || 0).toLocaleString(
                             "en-IN",

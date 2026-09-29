@@ -37,7 +37,8 @@ bg-[#4C1D95]/100
         shadow-lg"
       >
         <div className="px- sm:px-6 md:px-10 py-4">
-          <div className="flex items-center justify-space-between">
+          <div className="flex items-center justify-between">
+            {" "}
             {/* LEFT - LOGO */}
             <button
               onClick={() => handleNavigation("#")}
@@ -91,7 +92,6 @@ bg-[#4C1D95]/100
                 </p>
               </div>
             </button>
-
             {/* DESKTOP NAVIGATION */}
             <nav className="hidden md:flex flex-1 mr-8 justify-center">
               <ul className="flex items-center gap-6 lg:gap-10 text-white font-medium">
@@ -124,7 +124,6 @@ bg-[#4C1D95]/100
                     <span>Messages</span>
 
                     {/* Notification */}
-                   
                   </button>
                 </li>
 
@@ -144,9 +143,9 @@ bg-[#4C1D95]/100
                 </li>
               </ul>
             </nav>
-
             {/* RIGHT SIDE */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 ml-auto">
+              {" "}
               {/* POST JOB - Desktop */}
               <button
                 onClick={() => handleNavigate("/postjob")}
@@ -169,7 +168,6 @@ bg-[#4C1D95]/100
                 <Plus size={18} />
                 <span>Post Job</span>
               </button>
-
               {/* PROFILE - Desktop */}
               <button
                 onClick={() => handleNavigate("/clientprofile")}
@@ -192,18 +190,18 @@ bg-[#4C1D95]/100
                   {user?.name || user?.fullName || "Profile"}
                 </span>
               </button>
-
               {/* MOBILE MENU BUTTON */}
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
                 className="
-                  md:hidden
-                  text-white
-                  p-2
-                  rounded-lg
-                  hover:bg-purple-800
-                  transition
-                "
+    md:hidden
+    ml-auto
+    text-white
+    p-2
+    rounded-lg
+    hover:bg-purple-800
+    transition
+  "
               >
                 {menuOpen ? <X size={26} /> : <Menu size={26} />}
               </button>
@@ -212,7 +210,7 @@ bg-[#4C1D95]/100
 
           {/* MOBILE NAVIGATION */}
           {menuOpen && (
-            <nav className="md:hidden mt-4 border-t border-purple-700 pt-4">
+            <nav className="md:hidden mt-4 border-t border-purple-700 pt4">
               <ul className="flex flex-col gap-2">
                 {/* Dashboard */}
                 <li>
@@ -255,8 +253,6 @@ bg-[#4C1D95]/100
                   >
                     <MessageCircle size={19} />
                     <span>Messages</span>
-
-                    
                   </button>
                 </li>
 

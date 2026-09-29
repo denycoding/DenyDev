@@ -82,11 +82,11 @@ function Header() {
   return (
     <header
       className="
-        sticky
+       sticky
         top-0
         z-50
         w-full
-bg-[#4C1D95]/100
+bg-[#10002b]/90  
         backdrop-blur-xl
         border-b
         border-white/20
@@ -161,16 +161,17 @@ bg-[#4C1D95]/100
           {/* ========================================= */}
 
           <nav className="hidden lg:flex items-center">
-            <ul className="flex items-center gap-1">
+            <ul className="flex items-center">
               {navLinks.map((link) => (
                 <li key={link.name}>
                   <button
                     onClick={() => handleNavigation(link.path)}
                     className="
                       relative
-                      px-4
+                      font-mono
+                      px-3
                       py-2
-                      text-sm
+                      text-md
                       font-medium
                       text-gray-300
                       hover:text-white

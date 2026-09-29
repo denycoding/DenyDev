@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
+import Api from "./API";
 import {
   User,
   Mail,
@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 
 import { FaHome } from "react-icons/fa";
- 
+
 function ClientProfile() {
   const navigate = useNavigate();
 
@@ -57,6 +57,37 @@ function ClientProfile() {
     hiringStatus: "",
   });
 
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const clientId = user?._id || user?.id;
+      if (!clientId) return;
+
+      try {
+        const res = await Api.get(`/clientprofile/${clientId}`);
+
+        if (res.data.success && res.data.profile) {
+          const profileData = res.data.profile;
+
+          setFormData((prev) => ({
+            ...prev, // keep industry / preferredBudget / hiringStatus
+            name: profileData.ClientName || user?.name || user?.fullName || "",
+            email: profileData.email || user?.email || "",
+            phone: profileData.phone || "",
+            location: profileData.location || "",
+            companyName: profileData.CompanyName || "",
+            companyWebsite: profileData.website || "",
+            clientType: profileData.ClientType || "",
+            about: profileData.AboutCompany || "",
+          }));
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
   // =========================================================
   // INPUT CHANGE
   // =========================================================
@@ -83,14 +114,35 @@ function ClientProfile() {
   // SAVE PROFILE
   // =========================================================
 
-  const handleSave = () => {
-    console.log("Updated Client Profile:", formData);
+  const handleSave = async () => {
+    const clientId = user?._id;
+    const data = {
+      clientId,
+      image: user?.image || "",
+      ClientName: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      location: formData.location,
+      CompanyName: formData.companyName,
+      website: formData.companyWebsite,
+      AboutCompany: formData.about,
+      ClientType: formData.clientType,
+    };
+    console.log(clientId);
 
-    // Later you can send formData to your backend API.
+    try {
+      const res = await Api.post("/clientprofile", data);
 
-    setEditMode(false);
-
-    alert("Profile Updated Successfully 🚀");
+      if (res.data.success) {
+        setEditMode(false);
+        alert("Profile Updated Successful ly 🚀");
+      } else {
+        alert(res.data.message || "Failed to update profile");
+      }
+    } catch (e) {
+      console.log(e);
+      alert("Failed to update profile");
+    }
   };
 
   // =========================================================
@@ -109,7 +161,7 @@ function ClientProfile() {
     "w-full bg-white/10 text-white px-4 py-2.5 rounded-xl border border-white/10 focus:border-purple-400 focus:ring-1 focus:ring-purple-400 outline-none placeholder-gray-500 disabled:opacity-70 transition";
 
   return (
-     <div
+    <div
       className="
         min-h-screen
         bg-gradient-to-br
@@ -127,19 +179,17 @@ function ClientProfile() {
       {/* HEADER */}
       {/* ===================================================== */}
 
-     {/* ===================================================== */}
-{/* HEADER */}
-{/* ===================================================== */}
+      {/* ===================================================== */}
+      {/* HEADER */}
+      {/* ===================================================== */}
 
-<div className="flex items-center justify-between gap-5 mb-8">
-
-  {/* LEFT SIDE */}
-  <div className="flex items-center gap-5">
-
-    {/* HOME BUTTON */}
-    <button
-      onClick={() => navigate("/clientdashboard")}
-      className="
+      <div className="flex items-center justify-between gap-5 mb-8">
+        {/* LEFT SIDE */}
+        <div className="flex items-center gap-5">
+          {/* HOME BUTTON */}
+          <button
+            onClick={() => navigate("/clientdashboard")}
+            className="
         w-11
         h-11
         flex
@@ -152,34 +202,29 @@ function ClientProfile() {
         hover:bg-purple-600
         transition
       "
-      title="Client Dashboard"
-    >
-      <FaHome size={20} />
-    </button>
+            title="Client Dashboard"
+          >
+            <FaHome size={20} />
+          </button>
 
-    {/* TITLE */}
-    <div>
-      <h1 className="text-2xl sm:text-3xl font-bold">
-        Client Profile
-      </h1>
+          {/* TITLE */}
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold">Client Profile</h1>
 
-      <p className="text-gray-400 text-sm mt-1">
-        Manage your personal and professional client information.
-      </p>
-    </div>
+            <p className="text-gray-400 text-sm mt-1">
+              Manage your personal and professional client information.
+            </p>
+          </div>
+        </div>
 
-  </div>
+        {/* RIGHT SIDE - PROFILE ACTIONS */}
+        <div className="flex items-center gap-3">
+          {/* EDIT / SAVE */}
 
-
-  {/* RIGHT SIDE - PROFILE ACTIONS */}
-  <div className="flex items-center gap-3">
-
-    {/* EDIT / SAVE */}
-
-    {!editMode ? (
-      <button
-        onClick={() => setEditMode(true)}
-        className="
+          {!editMode ? (
+            <button
+              onClick={() => setEditMode(true)}
+              className="
           flex
           items-center
           justify-center
@@ -193,14 +238,14 @@ function ClientProfile() {
           font-semibold
           transition
         "
-      >
-        <Edit3 size={17} />
-        Edit Profile
-      </button>
-    ) : (
-      <button
-        onClick={handleSave}
-        className="
+            >
+              <Edit3 size={17} />
+              Edit Profile
+            </button>
+          ) : (
+            <button
+              onClick={handleSave}
+              className="
           flex
           items-center
           justify-center
@@ -214,18 +259,18 @@ function ClientProfile() {
           font-semibold
           transition
         "
-      >
-        <Save size={17} />
-        Save Changes
-      </button>
-    )}
+            >
+              <Save size={17} />
+              Save Changes
+            </button>
+          )}
 
-    {/* CANCEL */}
+          {/* CANCEL */}
 
-    {editMode && (
-      <button
-        onClick={handleCancel}
-        className="
+          {editMode && (
+            <button
+              onClick={handleCancel}
+              className="
           flex
           items-center
           justify-center
@@ -241,17 +286,17 @@ function ClientProfile() {
           font-semibold
           transition
         "
-      >
-        <X size={17} />
-        Cancel
-      </button>
-    )}
+            >
+              <X size={17} />
+              Cancel
+            </button>
+          )}
 
-    {/* LOGOUT */}
+          {/* LOGOUT */}
 
-    <button
-      onClick={handleLogout}
-      className="
+          <button
+            onClick={handleLogout}
+            className="
         flex
         items-center
         justify-center
@@ -269,14 +314,12 @@ function ClientProfile() {
         font-semibold
         transition
       "
-    >
-      <LogOut size={17} />
-      Logout
-    </button>
-
-  </div>
-
-</div>
+          >
+            <LogOut size={17} />
+            Logout
+          </button>
+        </div>
+      </div>
 
       {/* ===================================================== */}
       {/* PROFILE HERO */}
@@ -884,12 +927,8 @@ function ClientProfile() {
           className={`${inputClass} resize-none leading-6`}
         />
       </div>
-
-     
-       
-     </div> 
-      
-   );
+    </div>
+  );
 }
 
 export default ClientProfile;

@@ -1,4 +1,4 @@
-import { FaLinkedin, FaGithub, FaInstagram, FaTwitter } from "react-icons/fa";
+import { FaLinkedin, FaGithub, FaInstagram, FaFacebookF } from "react-icons/fa";
 function Footer() {
   return (
     <>
@@ -43,7 +43,7 @@ function Footer() {
                 Cloud & DevOps
               </li>
               <li className="hover:text-blue-400 cursor-pointer">
-                Maintenance & Support
+                Digital Marketing
               </li>
             </ul>
           </div>
@@ -57,14 +57,28 @@ function Footer() {
               <p>Location: Vadodara, Gujarat, India</p>
             </div>
           </div>
-          <div className="flex gap-5 mt-8 text-3xl">
-            <FaLinkedin className="cursor-pointer hover:text-blue-500 duration-300" />
-
-            <FaGithub className="cursor-pointer hover:text-blue-500 duration-300" />
-
-            <FaInstagram className="cursor-pointer hover:text-pink-500 duration-300" />
-
-            <FaTwitter className="cursor-pointer hover:text-sky-400 duration-300" />
+          <div className="flex gap-4 mt-8 text-3xl">
+            <a
+              href="https://www.linkedin.com/in/kazi-mohammad-kaif-57b11423b/"
+              target="_blank"
+            >
+              <FaLinkedin className="cursor-pointer hover:text-blue-500 duration-300" />
+            </a>
+            <a href="https://github.com/Denycoding2004" target="_blank">
+              <FaGithub className="cursor-pointer hover:text-blue-500 duration-300" />
+            </a>
+            <a href="https://www.instagram.com/_.kaifffff_29" target="_blank">
+              <FaInstagram className="cursor-pointer hover:text-pink-500 duration-300" />
+            </a>
+            <a
+              href="https://www.facebook.com/kaif.kazi.9440234"
+              target="_blank"
+            >
+              <FaFacebookF
+                size={24}
+                className="-ml-1 mt-0.5 cursor-pointer hover:text-sky-600 duration-300"
+              />
+            </a>
           </div>
         </div>
         <div className="border-t border-gray-700 mt-16 pt-8 text-center text-gray-400">
