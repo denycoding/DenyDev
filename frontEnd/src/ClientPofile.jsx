@@ -1,16 +1,15 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Api from "./API";
+
 import {
   User,
   Mail,
   MapPin,
-  Briefcase,
   LogOut,
   Phone,
   Globe,
   Calendar,
-  Settings,
   Edit3,
   Save,
   X,
@@ -19,8 +18,6 @@ import {
   FolderKanban,
   CheckCircle,
   Clock,
-  Users,
-  CreditCard,
 } from "lucide-react";
 
 import { FaHome } from "react-icons/fa";
@@ -28,14 +25,22 @@ import { FaHome } from "react-icons/fa";
 function ClientProfile() {
   const navigate = useNavigate();
 
-  const user = JSON.parse(localStorage.getItem("user"));
+  // =========================================================
+  // LOGGED-IN USER
+  // =========================================================
+
+  const user = JSON.parse(localStorage.getItem("user") || "null");
 
   const [editMode, setEditMode] = useState(false);
 
+  // Used to restore old data when Cancel is clicked
+  const [originalFormData, setOriginalFormData] = useState(null);
+
+  // Profile created date
+  const [createdAt, setCreatedAt] = useState(null);
+
   // =========================================================
   // CLIENT PROFILE DATA
-  // All profile fields are initially empty.
-  // User can fill them after logging in.
   // =========================================================
 
   const [formData, setFormData] = useState({
@@ -57,10 +62,18 @@ function ClientProfile() {
     hiringStatus: "",
   });
 
+  // =========================================================
+  // FETCH CLIENT PROFILE
+  // =========================================================
+
   useEffect(() => {
     const fetchProfile = async () => {
       const clientId = user?._id || user?.id;
-      if (!clientId) return;
+
+      if (!clientId) {
+        console.log("Client ID not found");
+        return;
+      }
 
       try {
         const res = await Api.get(`/clientprofile/${clientId}`);
@@ -68,20 +81,41 @@ function ClientProfile() {
         if (res.data.success && res.data.profile) {
           const profileData = res.data.profile;
 
-          setFormData((prev) => ({
-            ...prev, // keep industry / preferredBudget / hiringStatus
-            name: profileData.ClientName || user?.name || user?.fullName || "",
+          const updatedData = {
+            name: profileData.clientName || user?.name || user?.fullName || "",
+
             email: profileData.email || user?.email || "",
+
             phone: profileData.phone || "",
+
             location: profileData.location || "",
-            companyName: profileData.CompanyName || "",
+
+            companyName: profileData.companyName || "",
+
             companyWebsite: profileData.website || "",
-            clientType: profileData.ClientType || "",
-            about: profileData.AboutCompany || "",
-          }));
+
+            clientType: profileData.clientType || "",
+
+            industry: profileData.industry || "",
+
+            preferredBudget: profileData.preferredBudget || "",
+
+            hiringStatus: profileData.hiringStatus || "",
+
+            about: profileData.aboutCompany || "",
+          };
+
+          setFormData(updatedData);
+
+          setOriginalFormData(updatedData);
+
+          setCreatedAt(profileData.createdAt || null);
         }
-      } catch (e) {
-        console.log(e);
+      } catch (error) {
+        console.log("Fetch Client Profile Error:", error);
+
+        // If profile does not exist yet,
+        // default data from localStorage will remain.
       }
     };
 
@@ -93,10 +127,23 @@ function ClientProfile() {
   // =========================================================
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // =========================================================
+  // START EDITING
+  // =========================================================
+
+  const handleEdit = () => {
+    // Store current data before editing
+    setOriginalFormData({ ...formData });
+
+    setEditMode(true);
   };
 
   // =========================================================
@@ -115,33 +162,88 @@ function ClientProfile() {
   // =========================================================
 
   const handleSave = async () => {
-    const clientId = user?._id;
+    const clientId = user?._id || user?.id;
+
+    // Check client ID
+    if (!clientId) {
+      alert("Client ID not found. Please login again.");
+      return;
+    }
+
     const data = {
       clientId,
+
       image: user?.image || "",
-      ClientName: formData.name,
+
+      // Personal Details
+      clientName: formData.name,
       email: formData.email,
       phone: formData.phone,
       location: formData.location,
-      CompanyName: formData.companyName,
+
+      // Company Details
+      companyName: formData.companyName,
       website: formData.companyWebsite,
-      AboutCompany: formData.about,
-      ClientType: formData.clientType,
+
+      // Client Information
+      clientType: formData.clientType,
+      industry: formData.industry,
+      preferredBudget: formData.preferredBudget,
+      hiringStatus: formData.hiringStatus,
+
+      // About
+      aboutCompany: formData.about,
     };
-    console.log(clientId);
+
+    console.log("Saving Client Profile:", data);
 
     try {
       const res = await Api.post("/clientprofile", data);
 
       if (res.data.success) {
+        const profile = res.data.profile;
+
+        // Update frontend with actual backend data
+        const updatedData = {
+          name: profile.clientName || user?.name || user?.fullName || "",
+
+          email: profile.email || user?.email || "",
+
+          phone: profile.phone || "",
+
+          location: profile.location || "",
+
+          companyName: profile.companyName || "",
+
+          companyWebsite: profile.website || "",
+
+          clientType: profile.clientType || "",
+
+          industry: profile.industry || "",
+
+          preferredBudget: profile.preferredBudget || "",
+
+          hiringStatus: profile.hiringStatus || "",
+
+          about: profile.aboutCompany || "",
+        };
+
+        setFormData(updatedData);
+
+        setOriginalFormData(updatedData);
+
+        setCreatedAt(profile.createdAt || createdAt);
+
         setEditMode(false);
-        alert("Profile Updated Successful ly 🚀");
+
+        alert("Profile Updated Successfully 🚀");
       } else {
         alert(res.data.message || "Failed to update profile");
       }
-    } catch (e) {
-      console.log(e);
-      alert("Failed to update profile");
+    } catch (error) {
+      console.log("Save Client Profile Error:", error);
+
+      alert(error?.response?.data?.message || "Failed to update profile");
     }
   };
 
@@ -150,7 +252,35 @@ function ClientProfile() {
   // =========================================================
 
   const handleCancel = () => {
+    // Restore previous data
+    if (originalFormData) {
+      setFormData({
+        ...originalFormData,
+      });
+    }
+
     setEditMode(false);
+  };
+
+  // =========================================================
+  // GET JOINED DATE
+  // =========================================================
+
+  const getJoinedDate = () => {
+    if (!createdAt) {
+      return "Joined after registration";
+    }
+
+    const date = new Date(createdAt);
+
+    if (Number.isNaN(date.getTime())) {
+      return "Joined after registration";
+    }
+
+    return `Joined ${date.toLocaleDateString("en-IN", {
+      month: "short",
+      year: "numeric",
+    })}`;
   };
 
   // =========================================================
@@ -179,35 +309,34 @@ function ClientProfile() {
       {/* HEADER */}
       {/* ===================================================== */}
 
-      {/* ===================================================== */}
-      {/* HEADER */}
-      {/* ===================================================== */}
-
       <div className="flex items-center justify-between gap-5 mb-8">
         {/* LEFT SIDE */}
+
         <div className="flex items-center gap-5">
           {/* HOME BUTTON */}
+
           <button
             onClick={() => navigate("/clientdashboard")}
             className="
-        w-11
-        h-11
-        flex
-        items-center
-        justify-center
-        rounded-xl
-        bg-white/10
-        border
-        border-white/10
-        hover:bg-purple-600
-        transition
-      "
+              w-11
+              h-11
+              flex
+              items-center
+              justify-center
+              rounded-xl
+              bg-white/10
+              border
+              border-white/10
+              hover:bg-purple-600
+              transition
+            "
             title="Client Dashboard"
           >
             <FaHome size={20} />
           </button>
 
           {/* TITLE */}
+
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold">Client Profile</h1>
 
@@ -217,27 +346,28 @@ function ClientProfile() {
           </div>
         </div>
 
-        {/* RIGHT SIDE - PROFILE ACTIONS */}
+        {/* RIGHT SIDE */}
+
         <div className="flex items-center gap-3">
           {/* EDIT / SAVE */}
 
           {!editMode ? (
             <button
-              onClick={() => setEditMode(true)}
+              onClick={handleEdit}
               className="
-          flex
-          items-center
-          justify-center
-          gap-2
-          bg-purple-600
-          hover:bg-purple-500
-          px-4
-          py-2.5
-          rounded-xl
-          text-sm
-          font-semibold
-          transition
-        "
+                flex
+                items-center
+                justify-center
+                gap-2
+                bg-purple-600
+                hover:bg-purple-500
+                px-4
+                py-2.5
+                rounded-xl
+                text-sm
+                font-semibold
+                transition
+              "
             >
               <Edit3 size={17} />
               Edit Profile
@@ -246,19 +376,19 @@ function ClientProfile() {
             <button
               onClick={handleSave}
               className="
-          flex
-          items-center
-          justify-center
-          gap-2
-          bg-green-500
-          hover:bg-green-600
-          px-4
-          py-2.5
-          rounded-xl
-          text-sm
-          font-semibold
-          transition
-        "
+                flex
+                items-center
+                justify-center
+                gap-2
+                bg-green-500
+                hover:bg-green-600
+                px-4
+                py-2.5
+                rounded-xl
+                text-sm
+                font-semibold
+                transition
+              "
             >
               <Save size={17} />
               Save Changes
@@ -271,21 +401,21 @@ function ClientProfile() {
             <button
               onClick={handleCancel}
               className="
-          flex
-          items-center
-          justify-center
-          gap-2
-          bg-white/10
-          hover:bg-white/20
-          border
-          border-white/10
-          px-4
-          py-2.5
-          rounded-xl
-          text-sm
-          font-semibold
-          transition
-        "
+                flex
+                items-center
+                justify-center
+                gap-2
+                bg-white/10
+                hover:bg-white/20
+                border
+                border-white/10
+                px-4
+                py-2.5
+                rounded-xl
+                text-sm
+                font-semibold
+                transition
+              "
             >
               <X size={17} />
               Cancel
@@ -297,23 +427,23 @@ function ClientProfile() {
           <button
             onClick={handleLogout}
             className="
-        flex
-        items-center
-        justify-center
-        gap-2
-        bg-red-500/10
-        border
-        border-red-400/20
-        text-red-400
-        hover:bg-red-500
-        hover:text-white
-        px-4
-        py-2.5
-        rounded-xl
-        text-sm
-        font-semibold
-        transition
-      "
+              flex
+              items-center
+              justify-center
+              gap-2
+              bg-red-500/10
+              border
+              border-red-400/20
+              text-red-400
+              hover:bg-red-500
+              hover:text-white
+              px-4
+              py-2.5
+              rounded-xl
+              text-sm
+              font-semibold
+              transition
+            "
           >
             <LogOut size={17} />
             Logout
@@ -442,7 +572,8 @@ function ClientProfile() {
 
                   <span className="flex items-center gap-2">
                     <Calendar size={15} />
-                    Joined after registration
+
+                    {getJoinedDate()}
                   </span>
                 </div>
               </div>
@@ -594,7 +725,7 @@ function ClientProfile() {
 
             {!editMode && (
               <button
-                onClick={() => setEditMode(true)}
+                onClick={handleEdit}
                 className="
                   flex
                   items-center
@@ -887,6 +1018,36 @@ function ClientProfile() {
               className={`${inputClass} pl-10`}
             />
           </div>
+
+          {/* Hiring Status */}
+
+          <label className="text-xs text-gray-400 block mb-2 mt-5">
+            Hiring Status
+          </label>
+
+          <select
+            name="hiringStatus"
+            value={formData.hiringStatus}
+            onChange={handleChange}
+            disabled={!editMode}
+            className={inputClass}
+          >
+            <option value="" className="bg-[#21094a]">
+              Select Hiring Status
+            </option>
+
+            <option value="Currently Hiring" className="bg-[#21094a]">
+              Currently Hiring
+            </option>
+
+            <option value="Looking for Freelancers" className="bg-[#21094a]">
+              Looking for Freelancers
+            </option>
+
+            <option value="Not Hiring" className="bg-[#21094a]">
+              Not Hiring
+            </option>
+          </select>
         </div>
       </div>
 
@@ -927,6 +1088,56 @@ function ClientProfile() {
           className={`${inputClass} resize-none leading-6`}
         />
       </div>
+
+      {/* ===================================================== */}
+      {/* BOTTOM SAVE / CANCEL */}
+      {/* ===================================================== */}
+
+      {editMode && (
+        <div className="flex justify-end gap-3 mt-6 pb-4">
+          <button
+            onClick={handleCancel}
+            className="
+              flex
+              items-center
+              gap-2
+              bg-white/10
+              hover:bg-white/20
+              border
+              border-white/10
+              px-5
+              py-2.5
+              rounded-xl
+              text-sm
+              font-semibold
+              transition
+            "
+          >
+            <X size={17} />
+            Cancel
+          </button>
+
+          <button
+            onClick={handleSave}
+            className="
+              flex
+              items-center
+              gap-2
+              bg-green-500
+              hover:bg-green-600
+              px-5
+              py-2.5
+              rounded-xl
+              text-sm
+              font-semibold
+              transition
+            "
+          >
+            <Save size={17} />
+            Save Changes
+          </button>
+        </div>
+      )}
     </div>
   );
 }

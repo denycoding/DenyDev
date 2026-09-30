@@ -143,8 +143,7 @@ bg-[#10002b]/90
                   text-2xl
                   sm:text-3xl
                   font-extrabold
-                  tracking-tight
-                  text-white
+                   text-white
                 "
               >
                 Deny<span className="text-purple-400">Dev</span>
@@ -168,7 +167,7 @@ bg-[#10002b]/90
                     onClick={() => handleNavigation(link.path)}
                     className="
                       relative
-                      font-mono
+                      
                       px-3
                       py-2
                       text-md

@@ -11,7 +11,6 @@ function Login() {
     password: "",
   });
 
-
   // ==========================================
   // HANDLE INPUT CHANGE
   // ==========================================
@@ -56,6 +55,8 @@ function Login() {
           navigate("/clientdashboard");
         } else if (res.data.role === "freelancer") {
           navigate("/freelancerdashboard");
+        } else if (res.data.role === "admin") {
+          navigate("/admindashboard");
         }
       } else {
         alert(res.data.message);

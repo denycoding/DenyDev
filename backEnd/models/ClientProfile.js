@@ -9,6 +9,11 @@ const ClientProfileSchema = new mongoose.Schema(
       unique: true,
     },
 
+    role: {
+      type: String,
+      default: "client",
+    },
+
     image: {
       type: String,
       default: "",
@@ -44,12 +49,27 @@ const ClientProfileSchema = new mongoose.Schema(
       default: "",
     },
 
-    aboutCompany: {
+    clientType: {
       type: String,
       default: "",
     },
 
-    clientType: {
+    industry: {
+      type: String,
+      default: "",
+    },
+
+    preferredBudget: {
+      type: String,
+      default: "",
+    },
+
+    hiringStatus: {
+      type: String,
+      default: "",
+    },
+
+    aboutCompany: {
       type: String,
       default: "",
     },

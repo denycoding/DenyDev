@@ -33,6 +33,9 @@ function Adminheader() {
     <>
       <header
         className="  w-full
+        sticky
+        top-0
+        z-10
 bg-[#4C1D95]/100
         backdrop-blur-xl
         border-b
@@ -101,7 +104,7 @@ bg-[#4C1D95]/100
                     onClick={() => handleNavigate("/admindashboard")}
                     className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200 ${
                       isActive("/admindashboard")
-                        ? "bg-purple-600/30 text-white border border-purple-400/40 shadow-[0_0_12px_rgba(168,85,247,0.25)]"
+                        ? "bg-purple-500/20 text-white border border-purple-400/30"
                         : "text-white/80 hover:bg-purple-500/20 hover:text-white hover:border-purple-400/30 border border-transparent"
                     }`}
                   >
@@ -115,8 +118,8 @@ bg-[#4C1D95]/100
                   <button
                     onClick={() => handleNavigate("/clients")}
                     className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200 ${
-                      isActive("/adminusers")
-                        ? "bg-purple-600/30 text-white border border-purple-400/40 shadow-[0_0_12px_rgba(168,85,247,0.25)]"
+                      isActive("/clients")
+                        ? "bg-purple-500/20 text-white border border-purple-400/30"
                         : "text-white/80 hover:bg-purple-500/20 hover:text-white hover:border-purple-400/30 border border-transparent"
                     }`}
                   >
@@ -131,8 +134,8 @@ bg-[#4C1D95]/100
                   <button
                     onClick={() => handleNavigate("/freelancers")}
                     className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200 ${
-                      isActive("/adminprojects")
-                        ? "bg-purple-600/30 text-white border border-purple-400/40 shadow-[0_0_12px_rgba(168,85,247,0.25)]"
+                      isActive("/freelancers")
+                        ? "bg-purple-500/20 text-white border border-purple-400/30"
                         : "text-white/80 hover:bg-purple-500/20 hover:text-white hover:border-purple-400/30 border border-transparent"
                     }`}
                   >

@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-
+const mongoose = require('mongoose')
 const User = require("../models/User");
 const PostJob = require("../models/PostJob");
 const FreelancerProfile = require("../models/FreelancerProfile");
@@ -1141,14 +1141,17 @@ router.post("/clientprofile", async (req, res) => {
     const {
       clientId,
       image,
-      ClientName,
+      clientName,
       email,
       phone,
       location,
-      CompanyName,
+      companyName,
       website,
-      AboutCompany,
-      ClientType,
+      clientType,
+      industry,
+      preferredBudget,
+      hiringStatus,
+      aboutCompany,
     } = req.body;
 
     // Check client ID
@@ -1159,7 +1162,7 @@ router.post("/clientprofile", async (req, res) => {
       });
     }
 
-    // Check valid MongoDB ID
+    // Validate MongoDB ObjectId
     if (!mongoose.Types.ObjectId.isValid(clientId)) {
       return res.status(400).json({
         success: false,
@@ -1167,7 +1170,7 @@ router.post("/clientprofile", async (req, res) => {
       });
     }
 
-    // Check client exists
+    // Find user
     const client = await User.findById(clientId);
 
     if (!client) {
@@ -1188,20 +1191,38 @@ router.post("/clientprofile", async (req, res) => {
     // Create or update profile
     const profile = await ClientProfile.findOneAndUpdate(
       { clientId },
+
       {
         $set: {
           clientId,
+          role: "client",
+
           image: image || "",
-          ClientName: ClientName || "",
-          email: email || "",
+
+          clientName: clientName || "",
+
+          email: email || client.email || "",
+
           phone: phone || "",
+
           location: location || "",
-          CompanyName: CompanyName || "",
+
+          companyName: companyName || "",
+
           website: website || "",
-          AboutCompany: AboutCompany || "",
-          ClientType: ClientType || "",
+
+          clientType: clientType || "",
+
+          industry: industry || "",
+
+          preferredBudget: preferredBudget || "",
+
+          hiringStatus: hiringStatus || "",
+
+          aboutCompany: aboutCompany || "",
         },
       },
+
       {
         new: true,
         upsert: true,
@@ -1225,82 +1246,82 @@ router.post("/clientprofile", async (req, res) => {
     });
   }
 });
+ 
 
-router.get("/dashboard-stats", async (req, res) => {
+ 
+
+router.get("/clients", async (req, res) => {
   try {
-    const totalClients = await User.countDocuments({
-      role: "client",
-    });
+    const clients = await ClientProfile.find().sort({ createdAt: -1 });
 
-    const totalFreelancers = await User.countDocuments({
-      role: "freelancer",
-    });
-
-    const totalProjects = await Project.countDocuments();
-
-    const activeProjects = await Project.countDocuments({
-      status: "active",
-    });
-
-    const completedProjects = await Project.countDocuments({
-      status: "completed",
-    });
-
-    const totalProposals = await Proposal.countDocuments();
-
-    res.json({
-      totalClients,
-      totalFreelancers,
-      totalProjects,
-      activeProjects,
-      completedProjects,
-      totalProposals,
-    });
+    res.status(200).json(clients);
   } catch (error) {
-    console.error(error);
+    console.error("Error fetching clients:", error);
 
     res.status(500).json({
-      message: "Failed to fetch dashboard statistics",
+      message: "Failed to fetch clients",
     });
   }
 });
+
+router.get("/clientprofile/:clientId", async (req, res) => {
+  try {
+    const { clientId } = req.params;
+
+    console.log("Fetching client profile for:", clientId);
+
+    // Validate client ID
+    if (!mongoose.Types.ObjectId.isValid(clientId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid client ID",
+      });
+    }
+
+    // Find client profile
+    const profile = await ClientProfile.findOne({
+      clientId: clientId,
+    });
+
+    console.log("Client profile found:", profile);
+
+    // Profile doesn't exist yet
+    if (!profile) {
+      return res.status(200).json({
+        success: true,
+        message: "Client profile not found",
+        profile: null,
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      profile,
+    });
+  } catch (error) {
+    console.error("GET CLIENT PROFILE ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch client profile",
+      error: error.message,
+    });
+  }
+});
+router.get("/freelancerprofile", async (req, res) => {
+  try {
+    const freelancers = await FreelancerProfile.find().sort({
+      createdAt: -1,
+    });
+
+    res.status(200).json(freelancers);
+  } catch (error) {
+    console.error("Error fetching freelancers:", error);
+
+    res.status(500).json({
+      message: "Failed to fetch freelancers",
+    });
+  }
+});
+
 module.exports = router;
-
-router.get("/dashboard-stats", async (req, res) => {
-  try {
-    const totalClients = await User.countDocuments({
-      role: "client",
-    });
-
-    const totalFreelancers = await User.countDocuments({
-      role: "freelancer",
-    });
-
-    const totalProjects = await Project.countDocuments();
-
-    const activeProjects = await Project.countDocuments({
-      status: "active",
-    });
-
-    const completedProjects = await Project.countDocuments({
-      status: "completed",
-    });
-
-    const totalProposals = await Proposal.countDocuments();
-
-    res.json({
-      totalClients,
-      totalFreelancers,
-      totalProjects,
-      activeProjects,
-      completedProjects,
-      totalProposals,
-    });
-  } catch (error) {
-    console.error(error);
-
-    res.status(500).json({
-      message: "Failed to fetch dashboard statistics",
-    });
-  }
-});

@@ -21,6 +21,8 @@ import FreelancerViewProject from "./FreelancerViewProject";
 import Admindashboard from "./Admin/Admindashboard";
 import Clients from "./Admin/Clients";
 import Freelancers from "./Admin/Freelancers";
+import ClientDetail from "./Admin/ClientDetail";
+import FreelancerDetails from "./Admin/FreelancerDetails";
 function App() {
   return (
     <>
@@ -63,6 +65,8 @@ function App() {
             path="/clientmessages/:freelancerId?"
             element={<ClientMessages />}
           />
+          <Route path="/client/:clientId" element={<ClientDetail />} />
+          <Route path="/freelancer/:userId" element={<FreelancerDetails />} />
         </Routes>
       </BrowserRouter>
     </>
