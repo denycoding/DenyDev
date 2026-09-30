@@ -851,7 +851,7 @@ router.post("/proposals/:projectId", async (req, res) => {
 
       status: "pending",
     });
-
+    console.log(projectName);
     // -----------------------------------------
     // Increase proposal count
     // -----------------------------------------

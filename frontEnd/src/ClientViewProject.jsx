@@ -443,7 +443,7 @@ function ClientViewProject() {
               <div className="flex items-center justify-between mb-5">
                 <h2 className="text-2xl font-bold text-white">Proposals</h2>
 
-                <span className="bg-purple-500/20 text-purple-300 text-sm font-semibold px-3 py-1 rounded-full">
+                <span className="bg-purple-500/20 text-white text-sm font-semibold px-3 py-1 rounded-full">
                   {proposals.length}
                 </span>
               </div>
@@ -472,17 +472,18 @@ function ClientViewProject() {
                     return (
                       <div
                         key={p._id}
-                        className={`bg-white/5 border rounded-xl p-5 transition ${
+                        className={`group relative overflow-hidden bg-gradient-to-br from-[#1a0b35] via-[#16082d] to-[#10002b] border rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_35px_rgba(0,0,0,0.35)] ${
                           p.status === "accepted"
-                            ? "border-green-400/50"
+                            ? "border-green-400/40"
                             : p.status === "rejected"
                               ? "border-red-400/20"
-                              : "border-white/10"
+                              : "border-purple-400/15 hover:border-purple-400/40"
                         } ${isLocked ? "opacity-40 pointer-events-none" : ""}`}
                       >
+                        
                         {/* FREELANCER INFO */}
-
-                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-3">
+ 
+                        <div className="relative flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-5">
                           <div>
                             <h3 className="font-semibold text-lg text-white">
                               {p.freelancerId?.fullName || "Freelancer"}
@@ -493,13 +494,13 @@ function ClientViewProject() {
                             </p>
                           </div>
 
-                          <div className="flex items-center gap-1 text-purple-300 font-bold">
+                          <div className="flex items-center gap-1 text-white font-bold">
                             <IndianRupee size={16} />
 
                             {Number(p.bidAmount || 0).toLocaleString("en-IN")}
                           </div>
                         </div>
-
+ 
                         {/* COVER LETTER */}
 
                         <p className="text-gray-300 text-sm leading-6 mb-4">
