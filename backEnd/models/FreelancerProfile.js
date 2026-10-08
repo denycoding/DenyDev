@@ -29,6 +29,11 @@ const reviewSchema = new mongoose.Schema(
 
 const freelancerProfileSchema = new mongoose.Schema(
   {
+    accountType: {
+      type: String,
+      enum: ["Blocked", "unBlock"],
+      default: "unBlock",
+    },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

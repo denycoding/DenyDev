@@ -8,6 +8,11 @@ const ClientProfileSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
+    accountType: {
+      type: String,
+      enum: ["Blocked", "unBlock"],
+      default: "unBlock",
+    },
 
     role: {
       type: String,

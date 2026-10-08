@@ -103,7 +103,7 @@ function Hero() {
         </video>
 
         <div className="absolute inset-0 bg-gradient-to-r from-gray-900/90 via-gray-900/60 to-gray-900/20 z-10" />
-        <div className="relative z-20 w-full lg:w-1/2 text-center lg:text-left lg:mt-0 mb-16">
+        <div className="relative z-20 w-full lg:w-1/2 text-center lg:text-left lg:mt-0 mb-16 ">
           <h1
             className="
     text-4xl

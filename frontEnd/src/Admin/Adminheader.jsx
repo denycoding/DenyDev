@@ -35,7 +35,7 @@ function Adminheader() {
         className="  w-full
         sticky
         top-0
-        z-10
+        z-20
 bg-[#4C1D95]/100
         backdrop-blur-xl
         border-b
@@ -188,29 +188,29 @@ bg-[#4C1D95]/100
 
                 <li>
                   <button
-                    onClick={() => handleNavigate("/adminusers")}
+                    onClick={() => handleNavigate("/clients")}
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${
-                      isActive("/adminusers")
+                      isActive("/clients")
                         ? "bg-purple-800 text-white"
                         : "text-white hover:bg-purple-800"
                     }`}
                   >
-                    <MessageCircle size={19} />
-                    Users
+                    <FiUsers size={18} />
+                    Clients
                   </button>
                 </li>
 
                 <li>
                   <button
-                    onClick={() => handleNavigate("/adminprojects")}
+                    onClick={() => handleNavigate("/freelancers")}
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${
-                      isActive("/adminprojects")
+                      isActive("/freelancers")
                         ? "bg-purple-800 text-white"
                         : "text-white hover:bg-purple-800"
                     }`}
                   >
-                    <FolderOpen size={19} />
-                    Projects
+                    <FaUsers size={18} />
+                    Freelancers
                   </button>
                 </li>
 

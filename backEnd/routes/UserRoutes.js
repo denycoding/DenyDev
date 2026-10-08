@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const mongoose = require('mongoose')
+const mongoose = require("mongoose");
 const User = require("../models/User");
 const PostJob = require("../models/PostJob");
 const FreelancerProfile = require("../models/FreelancerProfile");
@@ -18,7 +18,6 @@ router.post("/register", async (req, res) => {
   try {
     const { fullName, email, role, password } = req.body;
 
-    // Validate fields
     if (!fullName || !email || !role || !password) {
       return res.status(400).json({
         success: false,
@@ -26,7 +25,6 @@ router.post("/register", async (req, res) => {
       });
     }
 
-    // Check existing user
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
@@ -36,10 +34,8 @@ router.post("/register", async (req, res) => {
       });
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create user
     const newUser = new User({
       fullName,
       email,
@@ -49,7 +45,6 @@ router.post("/register", async (req, res) => {
 
     const savedUser = await newUser.save();
 
-    // Response
     res.status(201).json({
       success: true,
       message: "Registration Successfully",
@@ -78,7 +73,6 @@ router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Find user
     const fetchUser = await User.findOne({ email });
 
     if (!fetchUser) {
@@ -88,7 +82,6 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    // Check password
     const matchPassword = await bcrypt.compare(password, fetchUser.password);
 
     if (!matchPassword) {
@@ -98,7 +91,6 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    // Create JWT
     const token = jwt.sign(
       {
         id: fetchUser._id,
@@ -110,20 +102,16 @@ router.post("/login", async (req, res) => {
       },
     );
 
-    // Login success
     res.status(200).json({
       success: true,
       message: "Login Successfully",
-
       token,
-
       user: {
         id: fetchUser._id,
         fullName: fetchUser.fullName,
         email: fetchUser.email,
         role: fetchUser.role,
       },
-
       role: fetchUser.role,
     });
   } catch (error) {
@@ -135,10 +123,6 @@ router.post("/login", async (req, res) => {
     });
   }
 });
-
-// =========================================================
-// POST JOB
-// =========================================================
 
 // =========================================================
 // POST JOB
@@ -160,20 +144,12 @@ router.post("/postjob", async (req, res) => {
       deadline,
     } = req.body;
 
-    // -----------------------------------------
-    // Validate client
-    // -----------------------------------------
-
     if (!clientId) {
       return res.status(400).json({
         success: false,
         message: "Client ID is required",
       });
     }
-
-    // -----------------------------------------
-    // Check client exists
-    // -----------------------------------------
 
     const client = await User.findById(clientId);
 
@@ -184,20 +160,12 @@ router.post("/postjob", async (req, res) => {
       });
     }
 
-    // -----------------------------------------
-    // Check client role
-    // -----------------------------------------
-
     if (client.role !== "client") {
       return res.status(403).json({
         success: false,
         message: "Only clients can post jobs",
       });
     }
-
-    // -----------------------------------------
-    // Validate required project information
-    // -----------------------------------------
 
     if (!title || !title.trim()) {
       return res.status(400).json({
@@ -232,10 +200,6 @@ router.post("/postjob", async (req, res) => {
       });
     }
 
-    // -----------------------------------------
-    // Convert budget to numbers
-    // -----------------------------------------
-
     const minimumBudget = Number(budgetMin);
     const maximumBudget = Number(budgetMax);
 
@@ -260,45 +224,24 @@ router.post("/postjob", async (req, res) => {
       });
     }
 
-    // -----------------------------------------
-    // Create job
-    // -----------------------------------------
-
     const newJob = new PostJob({
       clientId: client._id,
-
       clientName: clientName || client.fullName || client.name,
-
       title: title.trim(),
-
       companyName: companyName?.trim() || "",
-
       description: description.trim(),
-
       projectType,
-
       experienceLevel,
-
       duration: duration?.trim() || "",
-
       budgetMin: minimumBudget,
-
       budgetMax: maximumBudget,
-
       deadline: deadline.trim(),
-
       status: "open",
-
       assignedFreelancerId: null,
-
       proposals: 0,
     });
 
     await newJob.save();
-
-    // -----------------------------------------
-    // Response
-    // -----------------------------------------
 
     return res.status(201).json({
       success: true,
@@ -357,7 +300,6 @@ router.post("/freelancerprofile", async (req, res) => {
       skills,
     } = req.body;
 
-    // Check user ID
     if (!userId) {
       return res.status(400).json({
         success: false,
@@ -365,7 +307,6 @@ router.post("/freelancerprofile", async (req, res) => {
       });
     }
 
-    // Find user
     const user = await User.findById(userId);
 
     if (!user) {
@@ -375,7 +316,6 @@ router.post("/freelancerprofile", async (req, res) => {
       });
     }
 
-    // Check role
     if (user.role !== "freelancer") {
       return res.status(403).json({
         success: false,
@@ -383,45 +323,30 @@ router.post("/freelancerprofile", async (req, res) => {
       });
     }
 
-    // Create or update profile
     const profile = await FreelancerProfile.findOneAndUpdate(
       { userId },
-
       {
         $set: {
           userId,
-
           name: name?.trim() || user.fullName,
-
           email: email?.trim() || user.email,
-
           image: image || "",
-
           phone: phone?.trim() || "",
-
           location: location?.trim() || "",
-
           website: website?.trim() || "",
-
           title: title?.trim() || "",
           category: category?.trim() || "",
-
           bio: bio?.trim() || "",
-
           experience: experience?.trim() || "",
-
           projects:
             projects !== undefined && projects !== "" ? Number(projects) : 0,
-
           hourlyRate:
             hourlyRate !== undefined && hourlyRate !== ""
               ? Number(hourlyRate)
               : 0,
-
           skills: Array.isArray(skills) ? skills : [],
         },
       },
-
       {
         new: true,
         upsert: true,
@@ -438,7 +363,6 @@ router.post("/freelancerprofile", async (req, res) => {
   } catch (error) {
     console.error("Freelancer Profile Save Error:", error);
 
-    // Duplicate userId
     if (error.code === 11000) {
       return res.status(409).json({
         success: false,
@@ -455,14 +379,13 @@ router.post("/freelancerprofile", async (req, res) => {
 });
 
 // =========================================================
-// GET FREELANCER PROFILE
+// GET SINGLE FREELANCER PROFILE (falls back to basic User info)
 // =========================================================
 
 router.get("/freelancerprofile/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
 
-    // Check user ID
     if (!userId) {
       return res.status(400).json({
         success: false,
@@ -470,7 +393,6 @@ router.get("/freelancerprofile/:userId", async (req, res) => {
       });
     }
 
-    // Check user
     const user = await User.findById(userId);
 
     if (!user) {
@@ -480,22 +402,41 @@ router.get("/freelancerprofile/:userId", async (req, res) => {
       });
     }
 
-    // Find profile
     const profile = await FreelancerProfile.findOne({ userId });
 
-    // Profile doesn't exist
     if (!profile) {
       return res.status(200).json({
         success: true,
-        profile: null,
-        message: "Freelancer profile not created yet",
+        hasProfile: false,
+        profile: {
+          userId: user._id,
+          fullName: user.fullName,
+          name: user.fullName,
+          email: user.email,
+          createdAt: user.registeredAt || user.createdAt,
+          image: "",
+          title: "",
+          location: "",
+          phone: "",
+          website: "",
+          experience: "",
+          hourlyRate: 0,
+          projects: 0,
+          rating: 0,
+          skills: [],
+          bio: "",
+          blocked: user.accountType,
+        },
       });
     }
 
-    // Profile found
     res.status(200).json({
       success: true,
-      profile,
+      hasProfile: true,
+      profile: {
+        ...profile.toObject(),
+        blocked: user.accountType,
+      },
     });
   } catch (error) {
     console.error("Get Freelancer Profile Error:", error);
@@ -517,7 +458,6 @@ router.post("/freelancerprofile/:userId/rate", async (req, res) => {
     const { userId } = req.params;
     const { rating } = req.body;
 
-    // Validate rating
     if (!rating || rating < 1 || rating > 5) {
       return res.status(400).json({
         success: false,
@@ -525,19 +465,10 @@ router.post("/freelancerprofile/:userId/rate", async (req, res) => {
       });
     }
 
-    // Update rating
     const profile = await FreelancerProfile.findOneAndUpdate(
       { userId },
-
-      {
-        $set: {
-          rating: Number(rating),
-        },
-      },
-
-      {
-        new: true,
-      },
+      { $set: { rating: Number(rating) } },
+      { new: true },
     );
 
     if (!profile) {
@@ -563,7 +494,7 @@ router.post("/freelancerprofile/:userId/rate", async (req, res) => {
 });
 
 // =========================================================
-// GET ALL FREELANCER PROFILES
+// GET ALL FREELANCER PROFILES (plural — used by Client dashboard browse page)
 // =========================================================
 
 router.get("/freelancerprofiles", async (req, res) => {
@@ -585,6 +516,66 @@ router.get("/freelancerprofiles", async (req, res) => {
 });
 
 // =========================================================
+// SUBMIT REVIEW FOR A FREELANCER
+// =========================================================
+
+router.post("/freelancerprofile/:userId/review", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { clientId, clientName, rating, comment } = req.body;
+
+    if (!clientId) {
+      return res.status(400).json({
+        success: false,
+        message: "Client ID is required",
+      });
+    }
+
+    if (!rating || rating < 1 || rating > 5) {
+      return res.status(400).json({
+        success: false,
+        message: "Rating must be between 1 and 5",
+      });
+    }
+
+    const profile = await FreelancerProfile.findOne({ userId });
+
+    if (!profile) {
+      return res.status(404).json({
+        success: false,
+        message: "Freelancer profile not found",
+      });
+    }
+
+    profile.reviews.push({
+      clientId,
+      clientName: clientName || "Anonymous",
+      rating: Number(rating),
+      comment: comment?.trim() || "",
+    });
+
+    const total = profile.reviews.reduce(
+      (acc, review) => acc + review.rating,
+      0,
+    );
+
+    profile.rating = total / profile.reviews.length;
+
+    await profile.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Review submitted successfully",
+      profile,
+    });
+  } catch (error) {
+    console.error("Submit Review Error:", error);
+
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+// =========================================================
 // GET MESSAGES BETWEEN TWO USERS
 // =========================================================
 
@@ -594,14 +585,8 @@ router.get("/messages/:userA/:userB", async (req, res) => {
 
     const messages = await Message.find({
       $or: [
-        {
-          senderId: userA,
-          receiverId: userB,
-        },
-        {
-          senderId: userB,
-          receiverId: userA,
-        },
+        { senderId: userA, receiverId: userB },
+        { senderId: userB, receiverId: userA },
       ],
     }).sort({ createdAt: 1 });
 
@@ -627,12 +612,10 @@ router.get("/conversations/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
 
-    // Find all messages involving this user
     const messages = await Message.find({
       $or: [{ senderId: userId }, { receiverId: userId }],
     }).sort({ createdAt: -1 });
 
-    // Store latest message for each partner
     const partnerMap = new Map();
 
     messages.forEach((msg) => {
@@ -641,23 +624,17 @@ router.get("/conversations/:userId", async (req, res) => {
           ? String(msg.receiverId)
           : String(msg.senderId);
 
-      // Only store latest message
       if (!partnerMap.has(partnerId)) {
         partnerMap.set(partnerId, msg);
       }
     });
 
-    // Get partner IDs
     const partnerIds = [...partnerMap.keys()];
 
-    // Get users
     const partners = await User.find({
-      _id: {
-        $in: partnerIds,
-      },
+      _id: { $in: partnerIds },
     });
 
-    // Build conversations
     const conversations = partners.map((partner) => {
       const lastMsg = partnerMap.get(String(partner._id));
 
@@ -686,6 +663,7 @@ router.get("/conversations/:userId", async (req, res) => {
 // =========================================================
 // GET SINGLE PROJECT
 // =========================================================
+
 router.get("/postjobs/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -712,13 +690,7 @@ router.get("/postjobs/:id", async (req, res) => {
     });
   }
 });
-// =====================================================
-// SUBMIT PROPOSAL
-// =====================================================
 
-// =====================================================
-// SUBMIT PROPOSAL
-// =====================================================
 // =========================================================
 // SUBMIT PROPOSAL
 // =========================================================
@@ -726,10 +698,6 @@ router.get("/postjobs/:id", async (req, res) => {
 router.post("/proposals/:projectId", async (req, res) => {
   try {
     const { freelancerId, bidAmount, deliveryTime, coverLetter } = req.body;
-
-    // -----------------------------------------
-    // Validate fields
-    // -----------------------------------------
 
     if (!freelancerId) {
       return res.status(400).json({
@@ -759,10 +727,6 @@ router.post("/proposals/:projectId", async (req, res) => {
       });
     }
 
-    // -----------------------------------------
-    // Find project
-    // -----------------------------------------
-
     const project = await PostJob.findById(req.params.projectId);
 
     if (!project) {
@@ -772,12 +736,7 @@ router.post("/proposals/:projectId", async (req, res) => {
       });
     }
 
-    // Get project name from database
     const projectName = project.title;
-
-    // -----------------------------------------
-    // Check project client
-    // -----------------------------------------
 
     if (!project.clientId) {
       return res.status(400).json({
@@ -787,20 +746,12 @@ router.post("/proposals/:projectId", async (req, res) => {
       });
     }
 
-    // -----------------------------------------
-    // Reject if position already filled
-    // -----------------------------------------
-
     if (project.assignedFreelancerId) {
       return res.status(400).json({
         success: false,
         message: "This position has already been filled.",
       });
     }
-
-    // -----------------------------------------
-    // Check freelancer
-    // -----------------------------------------
 
     const freelancer = await User.findById(freelancerId);
 
@@ -818,10 +769,6 @@ router.post("/proposals/:projectId", async (req, res) => {
       });
     }
 
-    // -----------------------------------------
-    // Check duplicate proposal
-    // -----------------------------------------
-
     const existingProposal = await Proposal.findOne({
       projectId: project._id,
       freelancerId,
@@ -834,35 +781,20 @@ router.post("/proposals/:projectId", async (req, res) => {
       });
     }
 
-    // -----------------------------------------
-    // Create proposal
-    // -----------------------------------------
-
     const proposal = await Proposal.create({
       projectId: project._id,
-      projectName: projectName, // ✅ Project name from PostJob DB
-
+      projectName,
       freelancerId: freelancer._id,
       clientId: project.clientId,
-
       bidAmount: Number(bidAmount),
       deliveryTime: Number(deliveryTime),
       coverLetter: coverLetter.trim(),
-
       status: "pending",
     });
-    console.log(projectName);
-    // -----------------------------------------
-    // Increase proposal count
-    // -----------------------------------------
 
     project.proposals = (project.proposals || 0) + 1;
 
     await project.save();
-
-    // -----------------------------------------
-    // Success response
-    // -----------------------------------------
 
     if (!proposal) {
       return res.status(500).json({
@@ -886,6 +818,7 @@ router.post("/proposals/:projectId", async (req, res) => {
     });
   }
 });
+
 // =========================================================
 // GET PROPOSALS FOR A PROJECT
 // =========================================================
@@ -963,6 +896,35 @@ router.get("/postjobs/client/:clientId", async (req, res) => {
   }
 });
 
+router.delete("/postjobs/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const project = await PostJob.findById(id);
+
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: "Project not found",
+      });
+    }
+
+    await PostJob.findByIdAndDelete(id);
+
+    return res.status(200).json({
+      success: true,
+      message: "Project deleted successfully",
+    });
+  } catch (error) {
+    console.error("Delete Project Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to delete project",
+      error: error.message,
+    });
+  }
+});
 // =========================================================
 // ACCEPT A PROPOSAL
 // =========================================================
@@ -987,17 +949,14 @@ router.patch("/proposals/:proposalId/accept", async (req, res) => {
       });
     }
 
-    // Mark this one accepted
     proposal.status = "accepted";
     await proposal.save();
 
-    // Reject every other proposal on the same project
     await Proposal.updateMany(
       { projectId: proposal.projectId, _id: { $ne: proposal._id } },
       { $set: { status: "rejected" } },
     );
 
-    // Update the job itself
     await PostJob.findByIdAndUpdate(proposal.projectId, {
       status: "in-progress",
       assignedFreelancerId: proposal.freelancerId,
@@ -1018,7 +977,11 @@ router.patch("/proposals/:proposalId/accept", async (req, res) => {
     });
   }
 });
-// routes/proposalRoutes.js
+
+// =========================================================
+// UPDATE PROPOSAL PROGRESS
+// =========================================================
+
 router.patch("/proposals/:proposalId/progress", async (req, res) => {
   try {
     const { progress } = req.body;
@@ -1030,7 +993,7 @@ router.patch("/proposals/:proposalId/progress", async (req, res) => {
     }
 
     const proposal = await Proposal.findByIdAndUpdate(
-      req.params.proposalId, // ✅ fixed
+      req.params.proposalId,
       { progress },
       { new: true },
     );
@@ -1040,101 +1003,24 @@ router.patch("/proposals/:proposalId/progress", async (req, res) => {
         .status(404)
         .json({ success: false, message: "Proposal not found" });
     }
+
     if (progress === 100) {
       await PostJob.findByIdAndUpdate(proposal.projectId, {
         status: "completed",
       });
     }
+
     res.json({ success: true, proposal });
   } catch (error) {
-    console.log("Update Progress Error:", error);
+    console.error("Update Progress Error:", error);
+
     res.status(500).json({ success: false, message: "Server error" });
   }
 });
-router.post("/freelancerprofile/:userId/review", async (req, res) => {
-  try {
-    const { userId } = req.params;
-    const { clientId, clientName, rating, comment } = req.body;
 
-    if (!clientId) {
-      return res.status(400).json({
-        success: false,
-        message: "Client ID is required",
-      });
-    }
-
-    if (!rating || rating < 1 || rating > 5) {
-      return res.status(400).json({
-        success: false,
-        message: "Rating must be between 1 and 5",
-      });
-    }
-
-    const profile = await FreelancerProfile.findOne({ userId });
-
-    if (!profile) {
-      return res.status(404).json({
-        success: false,
-        message: "Freelancer profile not found",
-      });
-    }
-
-    profile.reviews.push({
-      clientId,
-      clientName: clientName || "Anonymous",
-      rating: Number(rating),
-      comment: comment?.trim() || "",
-    });
-
-    const total = profile.reviews.reduce(
-      (acc, review) => acc + review.rating,
-      0,
-    );
-
-    profile.rating = total / profile.reviews.length;
-
-    await profile.save();
-
-    res.status(200).json({
-      success: true,
-      message: "Review submitted successfully",
-      profile,
-    });
-  } catch (error) {
-    console.log("Submit Review Error:", error);
-    res.status(500).json({ success: false, message: "Server error" });
-  }
-});
 // =========================================================
-// EXPORT ROUTER
+// CLIENT PROFILE — CREATE / UPDATE
 // =========================================================
-
-router.get("/user/:clientId", async (req, res) => {
-  try {
-    const { clientId } = req.params;
-
-    if (!mongoose.Types.ObjectId.isValid(clientId)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid client ID",
-      });
-    }
-
-    const profile = await ClientProfile.findOne({ clientId });
-
-    return res.status(200).json({
-      success: true,
-      profile: profile || null,
-    });
-  } catch (error) {
-    console.error("Get Client Profile Error:", error);
-
-    return res.status(500).json({
-      success: false,
-      message: "Failed to fetch client profile",
-    });
-  }
-});
 
 router.post("/clientprofile", async (req, res) => {
   try {
@@ -1154,7 +1040,6 @@ router.post("/clientprofile", async (req, res) => {
       aboutCompany,
     } = req.body;
 
-    // Check client ID
     if (!clientId) {
       return res.status(400).json({
         success: false,
@@ -1162,7 +1047,6 @@ router.post("/clientprofile", async (req, res) => {
       });
     }
 
-    // Validate MongoDB ObjectId
     if (!mongoose.Types.ObjectId.isValid(clientId)) {
       return res.status(400).json({
         success: false,
@@ -1170,7 +1054,6 @@ router.post("/clientprofile", async (req, res) => {
       });
     }
 
-    // Find user
     const client = await User.findById(clientId);
 
     if (!client) {
@@ -1180,7 +1063,6 @@ router.post("/clientprofile", async (req, res) => {
       });
     }
 
-    // Check role
     if (client.role !== "client") {
       return res.status(403).json({
         success: false,
@@ -1188,41 +1070,26 @@ router.post("/clientprofile", async (req, res) => {
       });
     }
 
-    // Create or update profile
     const profile = await ClientProfile.findOneAndUpdate(
       { clientId },
-
       {
         $set: {
           clientId,
           role: "client",
-
           image: image || "",
-
           clientName: clientName || "",
-
           email: email || client.email || "",
-
           phone: phone || "",
-
           location: location || "",
-
           companyName: companyName || "",
-
           website: website || "",
-
           clientType: clientType || "",
-
           industry: industry || "",
-
           preferredBudget: preferredBudget || "",
-
           hiringStatus: hiringStatus || "",
-
           aboutCompany: aboutCompany || "",
         },
       },
-
       {
         new: true,
         upsert: true,
@@ -1246,31 +1113,15 @@ router.post("/clientprofile", async (req, res) => {
     });
   }
 });
- 
 
- 
-
-router.get("/clients", async (req, res) => {
-  try {
-    const clients = await ClientProfile.find().sort({ createdAt: -1 });
-
-    res.status(200).json(clients);
-  } catch (error) {
-    console.error("Error fetching clients:", error);
-
-    res.status(500).json({
-      message: "Failed to fetch clients",
-    });
-  }
-});
+// =========================================================
+// GET CLIENT'S OWN PROFILE (used by the client's own profile page)
+// =========================================================
 
 router.get("/clientprofile/:clientId", async (req, res) => {
   try {
     const { clientId } = req.params;
 
-    console.log("Fetching client profile for:", clientId);
-
-    // Validate client ID
     if (!mongoose.Types.ObjectId.isValid(clientId)) {
       return res.status(400).json({
         success: false,
@@ -1278,14 +1129,8 @@ router.get("/clientprofile/:clientId", async (req, res) => {
       });
     }
 
-    // Find client profile
-    const profile = await ClientProfile.findOne({
-      clientId: clientId,
-    });
+    const profile = await ClientProfile.findOne({ clientId });
 
-    console.log("Client profile found:", profile);
-
-    // Profile doesn't exist yet
     if (!profile) {
       return res.status(200).json({
         success: true,
@@ -1299,7 +1144,7 @@ router.get("/clientprofile/:clientId", async (req, res) => {
       profile,
     });
   } catch (error) {
-    console.error("GET CLIENT PROFILE ERROR:", error);
+    console.error("Get Client Profile Error:", error);
 
     return res.status(500).json({
       success: false,
@@ -1308,13 +1153,163 @@ router.get("/clientprofile/:clientId", async (req, res) => {
     });
   }
 });
-router.get("/freelancerprofile", async (req, res) => {
+
+// =========================================================
+// GET ALL CLIENTS (admin list — merged User + Profile)
+// =========================================================
+
+router.get("/clients", async (req, res) => {
   try {
-    const freelancers = await FreelancerProfile.find().sort({
+    const clientUsers = await User.find({ role: "client" }).sort({
       createdAt: -1,
     });
 
-    res.status(200).json(freelancers);
+    const profiles = await ClientProfile.find();
+
+    const profileMap = new Map();
+    profiles.forEach((profile) => {
+      profileMap.set(String(profile.clientId), profile);
+    });
+
+    const merged = clientUsers.map((user) => {
+      const profile = profileMap.get(String(user._id));
+
+      return {
+        clientId: user._id,
+        fullName: user.fullName,
+        email: user.email,
+        createdAt: user.registeredAt || user.createdAt,
+        clientName: profile?.clientName || user.fullName,
+        companyName: profile?.companyName || "",
+        location: profile?.location || "",
+        clientType: profile?.clientType || "",
+        hiringStatus: profile?.hiringStatus || "",
+        image: profile?.image || "",
+        hasProfile: Boolean(profile),
+        accountType: user.accountType || "Active", // ✅ correct field, correct source
+      };
+    });
+
+    res.status(200).json(merged);
+  } catch (error) {
+    console.error("Error fetching clients:", error);
+
+    res.status(500).json({
+      message: "Failed to fetch clients",
+    });
+  }
+});
+
+// =========================================================
+// GET SINGLE CLIENT (admin detail view — falls back to basic User info)
+// =========================================================
+
+router.get("/client/:clientId", async (req, res) => {
+  try {
+    const { clientId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(clientId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid client ID",
+      });
+    }
+
+    const user = await User.findById(clientId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    const profile = await ClientProfile.findOne({ clientId });
+
+    const baseInfo = {
+      clientId: user._id,
+      clientName: user.fullName,
+      email: user.email,
+      createdAt: user.registeredAt || user.createdAt,
+      accountType: user.accountType || "unBlock",
+    };
+
+    if (!profile) {
+      return res.status(200).json({
+        success: true,
+        hasProfile: false,
+        profile: {
+          ...baseInfo,
+          image: "",
+          phone: "",
+          location: "",
+          companyName: "",
+          website: "",
+          clientType: "",
+          industry: "",
+          preferredBudget: "",
+          hiringStatus: "",
+          aboutCompany: "",
+          accountType: user.accountType || "unBlock",
+        },
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      hasProfile: true,
+      profile: {
+        ...profile.toObject(),
+        accountType: user.accountType || "unBlock",
+      },
+    });
+  } catch (error) {
+    console.error("Get Client Detail Error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch client details",
+    });
+  }
+});
+// =========================================================
+// GET ALL FREELANCERS (admin list — merged User + Profile)
+// =========================================================
+
+router.get("/freelancerprofile", async (req, res) => {
+  try {
+    const freelancerUsers = await User.find({ role: "freelancer" }).sort({
+      createdAt: -1,
+    });
+
+    const profiles = await FreelancerProfile.find();
+
+    const profileMap = new Map();
+    profiles.forEach((profile) => {
+      profileMap.set(String(profile.userId), profile);
+    });
+
+    const merged = freelancerUsers.map((user) => {
+      const profile = profileMap.get(String(user._id));
+
+      return {
+        userId: user._id,
+        fullName: user.fullName,
+        email: user.email,
+        createdAt: user.registeredAt || user.createdAt,
+        name: profile?.name || user.fullName,
+        skills: profile?.skills || [],
+        title: profile?.title || "",
+        location: profile?.location || "",
+        rating: profile?.rating || 0,
+        hourlyRate: profile?.hourlyRate || 0,
+        image: profile?.image || "",
+        hasProfile: Boolean(profile),
+        accountType: user.accountType || "Active",
+      };
+    });
+
+    res.status(200).json(merged);
   } catch (error) {
     console.error("Error fetching freelancers:", error);
 
@@ -1323,5 +1318,287 @@ router.get("/freelancerprofile", async (req, res) => {
     });
   }
 });
+// =========================================================
+// ADMIN: DELETE FREELANCER
+// =========================================================
+
+router.post("/admin/delete-freelancer/:userId", async (req, res) => {
+  try {
+    const userId = req.params.userId;
+
+    const deletedUser = await User.findByIdAndDelete(userId);
+
+    if (!deletedUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    await FreelancerProfile.deleteOne({ userId });
+
+    return res.status(200).json({
+      success: true,
+      message: "Freelancer deleted successfully",
+    });
+  } catch (error) {
+    console.error("Delete Freelancer Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to delete freelancer",
+    });
+  }
+});
+
+router.post("/admin/delete-client/:clientId", async (req, res) => {
+  try {
+    const { clientId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(clientId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid client ID",
+      });
+    }
+
+    // Find client user
+    const user = await User.findById(clientId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "Client not found",
+      });
+    }
+
+    // Make sure the user is actually a client
+    if (user.role !== "client") {
+      return res.status(400).json({
+        success: false,
+        message: "This user is not a client",
+      });
+    }
+
+    // Delete client profile
+    await ClientProfile.deleteOne({
+      clientId: clientId,
+    });
+
+    // Delete client's projects
+    await PostJob.deleteMany({
+      clientId: clientId,
+    });
+
+    // Delete proposals related to client's projects
+    await Proposal.deleteMany({
+      clientId: clientId,
+    });
+
+    // Delete messages involving this client
+    await Message.deleteMany({
+      $or: [{ senderId: clientId }, { receiverId: clientId }],
+    });
+
+    // Finally delete user account
+    await User.findByIdAndDelete(clientId);
+
+    return res.status(200).json({
+      success: true,
+      message: "Client deleted successfully",
+    });
+  } catch (error) {
+    console.error("Delete Client Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to delete client",
+      error: error.message,
+    });
+  }
+});
+// =========================================================
+// ADMIN: BLOCK / UNBLOCK FREELANCER (toggle)
+// =========================================================
+
+router.post("/admin/blockclient/:clientId", async (req, res) => {
+  try {
+    const { clientId } = req.params;
+
+    const user = await User.findById(clientId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "Client user account not found.",
+      });
+    }
+
+    if (user.role !== "client") {
+      return res.status(400).json({
+        success: false,
+        message: "This user is not a client.",
+      });
+    }
+
+    user.accountType = user.accountType === "Blocked" ? "Active" : "Blocked";
+
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message:
+        user.accountType === "Blocked"
+          ? "Client blocked successfully"
+          : "Client unblocked successfully",
+      accountType: user.accountType,
+      blocked: user.accountType,
+    });
+  } catch (error) {
+    console.error("Block Client Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update client block status",
+    });
+  }
+});
+
+/* =========================================================
+   BLOCK / UNBLOCK FREELANCER
+   accountType is stored ONLY in User
+========================================================= */
+
+router.post("/admin/blockfreelancers/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "Freelancer user account not found.",
+      });
+    }
+
+    if (user.role !== "freelancer") {
+      return res.status(400).json({
+        success: false,
+        message: "This user is not a freelancer.",
+      });
+    }
+
+    user.accountType = user.accountType === "Blocked" ? "Active" : "Blocked";
+
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message:
+        user.accountType === "Blocked"
+          ? "Freelancer blocked successfully"
+          : "Freelancer unblocked successfully",
+      accountType: user.accountType,
+      blocked: user.accountType,
+    });
+  } catch (error) {
+    console.error("Block Freelancer Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update freelancer block status",
+    });
+  }
+});
+
+// =========================================================
+// ADMIN: DELETE CLIENT
+// =========================================================
+
+// =========================================================
+// DASHBOARD STATS
+// =========================================================
+
+router.get("/dashboard-stats", async (req, res) => {
+  try {
+    const totalClients = await User.countDocuments({ role: "client" });
+    const totalFreelancers = await User.countDocuments({
+      role: "freelancer",
+    });
+
+    const totalProjects = await PostJob.countDocuments();
+    const activeProjects = await PostJob.countDocuments({
+      status: "in-progress",
+    });
+    const completedProjects = await PostJob.countDocuments({
+      status: "completed",
+    });
+
+    const totalProposals = await Proposal.countDocuments();
+
+    res.json({
+      totalClients,
+      totalFreelancers,
+      totalProjects,
+      activeProjects,
+      completedProjects,
+      totalProposals,
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: "Failed to fetch dashboard statistics",
+    });
+  }
+});
+
+router.get("/recent-users", async (req, res) => {
+  try {
+    const users = await User.find({
+      role: { $in: ["client", "freelancer"] },
+    })
+      .sort({ registeredAt: -1 })
+      .limit(3)
+      .select("fullName email role registeredAt createdAt");
+
+    res.status(200).json({
+      success: true,
+      users,
+    });
+  } catch (error) {
+    console.error("Recent Users Error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch recent users",
+    });
+  }
+});
+
+router.get("/recent-projects", async (req, res) => {
+  try {
+    const projects = await PostJob.find()
+      .sort({ createdAt: -1 })
+      .limit(3)
+      .select("title description status clientName companyName createdAt");
+
+    res.status(200).json({
+      success: true,
+      projects,
+    });
+  } catch (e) {
+    console.error("Recent Projects Error:", e);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch recent projects",
+    });
+  }
+});
+// =========================================================
+// EXPORT ROUTER
+// =========================================================
 
 module.exports = router;

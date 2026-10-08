@@ -66,7 +66,7 @@ function App() {
             element={<ClientMessages />}
           />
           <Route path="/client/:clientId" element={<ClientDetail />} />
-          <Route path="/freelancer/:userId" element={<FreelancerDetails />} />
+          <Route path="/freelance/:userId" element={<FreelancerDetails />} />
         </Routes>
       </BrowserRouter>
     </>

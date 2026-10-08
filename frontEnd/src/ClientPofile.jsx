@@ -163,7 +163,30 @@ function ClientProfile() {
 
   const handleSave = async () => {
     const clientId = user?._id || user?.id;
+    if (!formData.name.trim()) {
+      alert("Please enter your name.");
+      return;
+    }
 
+    if (!formData.email.trim()) {
+      alert("Please enter your email.");
+      return;
+    }
+    if (!formData.phone.trim()) {
+      alert("Please enter your phone number.");
+      return;
+    }
+    if (!formData.companyName.trim()) {
+      alert("Please enter your company name.");
+      return;
+    }
+    if (!formData.about.trim()) {
+      alert("Please enter information about your company.");
+      return;
+    } if (!formData.clientType.trim()) {
+      alert("Please enter your client type.");
+      return;
+    }
     // Check client ID
     if (!clientId) {
       alert("Client ID not found. Please login again.");
@@ -753,7 +776,7 @@ function ClientProfile() {
 
             <div>
               <label className="text-xs text-gray-400 mb-2 block">
-                Full Name
+                Full Name<span className="text-red-400">*</span>
               </label>
 
               <div className="relative">
@@ -781,7 +804,9 @@ function ClientProfile() {
             {/* Email */}
 
             <div>
-              <label className="text-xs text-gray-400 mb-2 block">Email</label>
+              <label className="text-xs text-gray-400 mb-2 block">
+                Email<span className="text-red-400">*</span>
+              </label>
 
               <div className="relative">
                 <Mail
@@ -808,7 +833,9 @@ function ClientProfile() {
             {/* Phone */}
 
             <div>
-              <label className="text-xs text-gray-400 mb-2 block">Phone</label>
+              <label className="text-xs text-gray-400 mb-2 block">
+                Phone<span className="text-red-400">*</span>
+              </label>
 
               <div className="relative">
                 <Phone
@@ -865,7 +892,7 @@ function ClientProfile() {
 
             <div>
               <label className="text-xs text-gray-400 mb-2 block">
-                Company Name
+                Company Name<span className="text-red-400">*</span>
               </label>
 
               <div className="relative">
@@ -944,7 +971,7 @@ function ClientProfile() {
           {/* Client Type */}
 
           <label className="text-xs text-gray-400 block mb-2">
-            Client Type
+            Client Type <span className="text-red-400">*</span>
           </label>
 
           <select
@@ -1020,34 +1047,6 @@ function ClientProfile() {
           </div>
 
           {/* Hiring Status */}
-
-          <label className="text-xs text-gray-400 block mb-2 mt-5">
-            Hiring Status
-          </label>
-
-          <select
-            name="hiringStatus"
-            value={formData.hiringStatus}
-            onChange={handleChange}
-            disabled={!editMode}
-            className={inputClass}
-          >
-            <option value="" className="bg-[#21094a]">
-              Select Hiring Status
-            </option>
-
-            <option value="Currently Hiring" className="bg-[#21094a]">
-              Currently Hiring
-            </option>
-
-            <option value="Looking for Freelancers" className="bg-[#21094a]">
-              Looking for Freelancers
-            </option>
-
-            <option value="Not Hiring" className="bg-[#21094a]">
-              Not Hiring
-            </option>
-          </select>
         </div>
       </div>
 
@@ -1070,7 +1069,9 @@ function ClientProfile() {
           <User size={19} className="text-purple-400" />
 
           <div>
-            <h2 className="text-xl font-bold">About Me / Company</h2>
+            <h2 className="text-xl font-bold">
+              About Me / Company<span className="text-red-400">*</span>
+            </h2>
 
             <p className="text-gray-500 text-sm mt-1">
               Tell freelancers about yourself or your company.

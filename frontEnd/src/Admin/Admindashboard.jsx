@@ -1,22 +1,100 @@
 import Adminheader from "./Adminheader";
-import RevenueChart from "./RevenueChart";
+import ProjectCategoryChart from "./ProjectCategoryChart";
+import StatsChart from "./StatsChart";
+import ProposalChart from "./ProposalChart";
+import { useEffect, useState } from "react";
+import Api from "../API";
 
 function Admindashboard() {
+  const [totalFreelancers, setTotalFreelancers] = useState(0);
+  const [totalClients, setTotalClients] = useState(0);
+  const [totalProjects, setTotalProjects] = useState(0);
+  const [recentUsers, setRecentUsers] = useState([]);
+  const [recentProjects, setRecentProjects] = useState([]);
+
+  useEffect(() => {
+    const fetchFreelancers = async () => {
+      try {
+        const res = await Api.get("/freelancerprofile");
+        setTotalFreelancers(res.data.length);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    fetchFreelancers();
+  }, []);
+
+  useEffect(() => {
+    const fetchClients = async () => {
+      try {
+        const res = await Api.get("/clients");
+        setTotalClients(res.data.length);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    fetchClients();
+  }, []);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const res = await Api.get("/postjobs");
+        setTotalProjects(res.data.jobs.length);
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+      }
+    };
+
+    fetchProjects();
+  }, []);
+
+  useEffect(() => {
+    const fetchRecentUsers = async () => {
+      try {
+        const res = await Api.get("/recent-users");
+
+        console.log("Recent Users:", res.data.users);
+
+        setRecentUsers(res.data.users);
+      } catch (error) {
+        console.error("Error fetching recent users:", error);
+      }
+    };
+
+    fetchRecentUsers();
+  }, []);
+
+  useEffect(() => {
+    const fetchRecentProjects = async () => {
+      try {
+        const res = await Api.get("/recent-projects");
+
+        console.log("Recent Projects:", res.data.projects);
+
+        setRecentProjects(res.data.projects);
+      } catch (error) {
+        console.error("Error fetching recent projects:", error);
+      }
+    };
+
+    fetchRecentProjects();
+  }, []);
   return (
     <>
       <Adminheader />
 
-      <div className="min-h-screen pb-10 bg-[#10002b]">
+      <div className="min-h-screen bg-[#10002b] pb-12">
         {/* =====================================================
             WELCOME SECTION
         ====================================================== */}
-        <section className="px-6 sm:px-10 pt-6">
+        <section className="px-6 sm:px-10 lg:px-16 pt-8">
           <div>
-            <h1 className="text-white font-serif text-3xl font-bold">
+            <h1 className="text-white font-serif text-3xl sm:text-4xl font-bold">
               <span className="text-purple-400">│</span> Welcome back, Admin
             </h1>
 
-            <p className="text-gray-300 text-sm ml-5 mt-3">
+            <p className="text-gray-400 text-sm sm:text-base ml-5 mt-3">
               Here's what's happening on DenyDev today.
             </p>
           </div>
@@ -35,7 +113,9 @@ function Admindashboard() {
                     Total Clients
                   </p>
 
-                  <h3 className="text-3xl font-bold text-white mt-2">48</h3>
+                  <h3 className="text-3xl font-bold text-white mt-2">
+                    {totalClients}
+                  </h3>
 
                   <p className="text-gray-400 text-xs mt-2">
                     Registered clients
@@ -56,7 +136,9 @@ function Admindashboard() {
                     Total Freelancers
                   </p>
 
-                  <h3 className="text-3xl font-bold text-white mt-2">86</h3>
+                  <h3 className="text-3xl font-bold text-white mt-2">
+                    {totalFreelancers}
+                  </h3>
 
                   <p className="text-gray-400 text-xs mt-2">
                     Registered freelancers
@@ -77,7 +159,9 @@ function Admindashboard() {
                     Total Projects
                   </p>
 
-                  <h3 className="text-3xl font-bold text-white mt-2">124</h3>
+                  <h3 className="text-3xl font-bold text-white mt-2">
+                    {totalProjects}
+                  </h3>
 
                   <p className="text-gray-400 text-xs mt-2">Projects posted</p>
                 </div>
@@ -91,35 +175,29 @@ function Admindashboard() {
         </section>
 
         {/* =====================================================
-            PROJECT PROGRESS / REVENUE
+            CHARTS SECTION
         ====================================================== */}
-        <section className="px-6 sm:px-10 lg:px-16 py-4">
-          <div className="mb-6">
-            <h1 className="text-white text-3xl font-serif font-bold">
-              Project Progress
-            </h1>
+        <section className="px-6 sm:px-10 lg:px-16 pb-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Projects by Category */}
+            <ProjectCategoryChart />
 
-            <p className="text-gray-400 text-sm mt-2">
-              Overview of platform revenue and project activity.
-            </p>
-          </div>
+            {/* Clients / Freelancers / Projects */}
+            <StatsChart />
 
-          {/* Center Chart */}
-          <div className="w-full flex justify-center">
-            <div className="w-full max-w-4xl">
-              <RevenueChart />
-            </div>
+            {/* Proposal Statistics */}
+            <ProposalChart />
           </div>
         </section>
 
         {/* =====================================================
             RECENT ACTIVITY
         ====================================================== */}
-        <section className="px-6 sm:px-10 lg:px-16 pt-12">
+        <section className="px-6 sm:px-10 lg:px-16 pt-6">
           <div className="mb-6">
-            <h1 className="text-white text-3xl font-serif font-bold">
+            <h2 className="text-white text-3xl font-serif font-bold">
               Recent Activity
-            </h1>
+            </h2>
 
             <p className="text-gray-400 text-sm mt-2">
               Latest projects and users on DenyDev.
@@ -132,118 +210,97 @@ function Admindashboard() {
             ================================================== */}
             <div className="bg-purple-900/40 backdrop-blur-md border border-white/10 rounded-2xl p-6 shadow-lg">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
-                <h2 className="text-xl font-semibold text-white">
+                <h3 className="text-xl font-semibold text-white">
                   Recent Projects
-                </h2>
+                </h3>
 
                 <span className="w-fit text-xs bg-purple-500/20 text-purple-200 px-3 py-1 rounded-full">
-                  3 Projects
+                  {recentProjects.length} Projects
                 </span>
               </div>
 
               <p className="text-gray-400 text-sm mb-4">
-                Projects posted in the last 24 hours
+                Latest projects posted on DenyDev
               </p>
 
               <ol className="space-y-3">
-                {/* Project 1 */}
-                <li className="flex items-center gap-3 bg-white/5 hover:bg-white/10 transition p-3 rounded-lg">
-                  <span className="w-8 h-8 shrink-0 flex items-center justify-center rounded-full bg-purple-600 text-white text-sm font-semibold">
-                    1
-                  </span>
+                {recentProjects.map((project, index) => (
+                  <li
+                    key={project._id}
+                    className="flex items-center gap-3 bg-white/5 hover:bg-white/10 transition p-3 rounded-lg"
+                  >
+                    {/* Number */}
+                    <span className="w-8 h-8 shrink-0 flex items-center justify-center rounded-full bg-purple-600 text-white text-sm font-semibold">
+                      {index + 1}
+                    </span>
 
-                  <div className="min-w-0">
-                    <p className="text-gray-200 font-medium">Hotel Website</p>
+                    {/* Project Details */}
+                    <div className="min-w-0">
+                      <p className="text-gray-200 font-medium truncate">
+                        {project.title}
+                      </p>
 
-                    <p className="text-gray-400 text-sm">Xyz Company</p>
-                  </div>
-                </li>
-
-                {/* Project 2 */}
-                <li className="flex items-center gap-3 bg-white/5 hover:bg-white/10 transition p-3 rounded-lg">
-                  <span className="w-8 h-8 shrink-0 flex items-center justify-center rounded-full bg-purple-600 text-white text-sm font-semibold">
-                    2
-                  </span>
-
-                  <div className="min-w-0">
-                    <p className="text-gray-200 font-medium">AI Chatbot</p>
-
-                    <p className="text-gray-400 text-sm">Xyz Company</p>
-                  </div>
-                </li>
-
-                {/* Project 3 */}
-                <li className="flex items-center gap-3 bg-white/5 hover:bg-white/10 transition p-3 rounded-lg">
-                  <span className="w-8 h-8 shrink-0 flex items-center justify-center rounded-full bg-purple-600 text-white text-sm font-semibold">
-                    3
-                  </span>
-
-                  <div className="min-w-0">
-                    <p className="text-gray-200 font-medium">AWS Services</p>
-
-                    <p className="text-gray-400 text-sm">Xyz Company</p>
-                  </div>
-                </li>
+                      <p className="text-gray-400 text-sm truncate">
+                        {project.clientName ||
+                          project.companyName ||
+                          "Unknown Client"}
+                      </p>
+                    </div>
+                  </li>
+                ))}
               </ol>
             </div>
-
             {/* =================================================
                 RECENT USERS
             ================================================== */}
             <div className="bg-purple-900/40 backdrop-blur-md border border-white/10 rounded-2xl p-6 shadow-lg">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
-                <h2 className="text-xl font-semibold text-white">
+                <h3 className="text-xl font-semibold text-white">
                   Recent Users
-                </h2>
+                </h3>
 
                 <span className="w-fit text-xs bg-purple-500/20 text-purple-200 px-3 py-1 rounded-full">
-                  3 Users
+                  {recentUsers.length} Users
                 </span>
               </div>
 
               <p className="text-gray-400 text-sm mb-4">
-                Users registered in the last 24 hours
+                Latest registered users
               </p>
 
               <div className="space-y-3">
-                {/* User 1 */}
-                <div className="flex items-center gap-3 bg-white/5 hover:bg-white/10 transition p-3 rounded-lg">
-                  <div className="w-10 h-10 shrink-0 rounded-full bg-purple-600 flex items-center justify-center text-white font-semibold">
-                    KM
-                  </div>
+                {recentUsers.map((user) => {
+                  const name = user.fullName || "Unknown User";
 
-                  <div>
-                    <p className="text-white font-medium">Kazi Mohammad</p>
+                  // Get initials
+                  const initials = name
+                    .split(" ")
+                    .map((word) => word[0])
+                    .join("")
+                    .slice(0, 2)
+                    .toUpperCase();
 
-                    <p className="text-gray-400 text-sm">Freelancer</p>
-                  </div>
-                </div>
+                  return (
+                    <div
+                      key={user._id}
+                      className="flex items-center gap-3 bg-white/5 hover:bg-white/10 transition p-3 rounded-lg"
+                    >
+                      <div className="w-10 h-10 shrink-0 rounded-full bg-purple-600 flex items-center justify-center text-white font-semibold">
+                        {initials}
+                      </div>
 
-                {/* User 2 */}
-                <div className="flex items-center gap-3 bg-white/5 hover:bg-white/10 transition p-3 rounded-lg">
-                  <div className="w-10 h-10 shrink-0 rounded-full bg-purple-600 flex items-center justify-center text-white font-semibold">
-                    AK
-                  </div>
+                      <div className="min-w-0">
+                        <p className="text-white font-medium truncate">
+                          {name}
+                        </p>
 
-                  <div>
-                    <p className="text-white font-medium">Aman Khan</p>
-
-                    <p className="text-gray-400 text-sm">Client</p>
-                  </div>
-                </div>
-
-                {/* User 3 */}
-                <div className="flex items-center gap-3 bg-white/5 hover:bg-white/10 transition p-3 rounded-lg">
-                  <div className="w-10 h-10 shrink-0 rounded-full bg-purple-600 flex items-center justify-center text-white font-semibold">
-                    RS
-                  </div>
-
-                  <div>
-                    <p className="text-white font-medium">Rahul Shah</p>
-
-                    <p className="text-gray-400 text-sm">Freelancer</p>
-                  </div>
-                </div>
+                        <p className="text-gray-400 text-sm capitalize">
+                          {user.role}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>

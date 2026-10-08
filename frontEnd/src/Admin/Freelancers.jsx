@@ -72,6 +72,8 @@ function Freelancers() {
 
                       <th className="px-6 py-4">Joined At</th>
 
+                      <th className="px-6 py-4">Status</th>
+
                       <th className="px-6 py-4">Action</th>
                     </tr>
                   </thead>
@@ -95,9 +97,22 @@ function Freelancers() {
 
                         {/* SKILLS */}
                         <td className="px-6 py-4 text-gray-300">
-                          {Array.isArray(freelancer.skills)
-                            ? freelancer.skills.join(", ")
-                            : freelancer.skills || "N/A"}
+                          {freelancer.hasProfile ? (
+                            Array.isArray(freelancer.skills) &&
+                            freelancer.skills.length > 0 ? (
+                              freelancer.skills.length > 3 ? (
+                                `${freelancer.skills.slice(0, 6).join(", ")}...`
+                              ) : (
+                                freelancer.skills.join(", ")
+                              )
+                            ) : (
+                              "No skills listed"
+                            )
+                          ) : (
+                            <span className="text-yellow-500 text-xs font-medium">
+                              Profile not created
+                            </span>
+                          )}
                         </td>
 
                         {/* JOINED */}
@@ -111,9 +126,22 @@ function Freelancers() {
 
                         {/* VIEW PROFILE */}
                         <td className="px-6 py-4">
+                          <p>
+                            {freelancer.accountType === "Blocked" ? (
+                              <span className="text-red-500 font-semibold">
+                                Blocked
+                              </span>
+                            ) : (
+                              <span className="text-green-500 font-semibold">
+                                Active
+                              </span>
+                            )}
+                          </p>
+                        </td>
+                        <td className="px-6 py-4">
                           <button
                             onClick={() =>
-                              navigate(`/freelancer/${freelancer.userId}`)
+                              navigate(`/freelance/${freelancer.userId}`)
                             }
                             className="px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-sm transition"
                           >
