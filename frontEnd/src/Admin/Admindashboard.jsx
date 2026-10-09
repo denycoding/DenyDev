@@ -4,6 +4,8 @@ import StatsChart from "./StatsChart";
 import ProposalChart from "./ProposalChart";
 import { useEffect, useState } from "react";
 import Api from "../API";
+import { useNavigate } from "react-router-dom";
+import { FaCircleInfo } from "react-icons/fa6";
 
 function Admindashboard() {
   const [totalFreelancers, setTotalFreelancers] = useState(0);
@@ -12,6 +14,7 @@ function Admindashboard() {
   const [recentUsers, setRecentUsers] = useState([]);
   const [recentProjects, setRecentProjects] = useState([]);
 
+  const navigate = useNavigate();
   useEffect(() => {
     const fetchFreelancers = async () => {
       try {
@@ -106,14 +109,17 @@ function Admindashboard() {
         <section className="px-6 sm:px-10 lg:px-16 py-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {/* Total Clients */}
-            <div className="bg-purple-900/40 backdrop-blur-md border border-white/10 rounded-2xl p-6 hover:bg-purple-900/50 hover:border-purple-500/30 transition duration-300">
+            <button
+              className=" cursor-pointer bg-purple-900/40 backdrop-blur-md border border-white/10 rounded-2xl p-6 hover:bg-purple-900/50 hover:border-purple-500/30 transition duration-300"
+              onClick={() => navigate("/admin/clients")}
+            >
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-gray-300 text-sm font-medium">
                     Total Clients
                   </p>
 
-                  <h3 className="text-3xl font-bold text-white mt-2">
+                  <h3 className="text-3xl  font-bold text-white mt-2">
                     {totalClients}
                   </h3>
 
@@ -122,14 +128,23 @@ function Admindashboard() {
                   </p>
                 </div>
 
-                <div className="w-12 h-12 rounded-xl bg-purple-600/30 flex items-center justify-center">
+                <div className="w-12 h-12  mt-5 rounded-xl bg-purple-600/30 flex items-center justify-center">
                   <span className="text-2xl">👥</span>
                 </div>
+                
               </div>
-            </div>
+                 <p className="absolute flex gap-2 justify-center align-middle top-2 right-5 text-gray-400 text-sm font-medium mt-2">
+                  <FaCircleInfo className="mt-[3px]" />
+
+                    View details
+                  </p>
+            </button>
 
             {/* Total Freelancers */}
-            <div className="bg-purple-900/40 backdrop-blur-md border border-white/10 rounded-2xl p-6 hover:bg-purple-900/50 hover:border-purple-500/30 transition duration-300">
+            <button
+              className=" cursor-pointer bg-purple-900/40 backdrop-blur-md border border-white/10 rounded-2xl p-6 hover:bg-purple-900/50 hover:border-purple-500/30 transition duration-300"
+              onClick={() => navigate("/admin/freelancers")}
+              >
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-gray-300 text-sm font-medium">
@@ -145,14 +160,22 @@ function Admindashboard() {
                   </p>
                 </div>
 
-                <div className="w-12 h-12 rounded-xl bg-purple-600/30 flex items-center justify-center">
+                <div className="w-12 h-12 mt-5 rounded-xl bg-purple-600/30 flex items-center justify-center">
                   <span className="text-2xl">💻</span>
                 </div>
+             <p className="absolute flex gap-2 justify-center align-middle top-2 right-5 text-gray-400 text-sm font-medium mt-2">
+                  <FaCircleInfo className="mt-[3px]" />
+
+                    View details
+                  </p>
               </div>
-            </div>
+            </button>
 
             {/* Total Projects */}
-            <div className="bg-purple-900/40 backdrop-blur-md border border-white/10 rounded-2xl p-6 hover:bg-purple-900/50 hover:border-purple-500/30 transition duration-300 sm:col-span-2 lg:col-span-1">
+            <button
+              className=" cursor-pointer bg-purple-900/40 backdrop-blur-md border border-white/10 rounded-2xl p-6 hover:bg-purple-900/50 hover:border-purple-500/30 transition duration-300 sm:col-span-2 lg:col-span-1"
+              onClick={() => navigate("/admin/projects")}
+            >
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-gray-300 text-sm font-medium">
@@ -166,11 +189,15 @@ function Admindashboard() {
                   <p className="text-gray-400 text-xs mt-2">Projects posted</p>
                 </div>
 
-                <div className="w-12 h-12 rounded-xl bg-purple-600/30 flex items-center justify-center">
+                <div className="w-12 h-12 mt-5 rounded-xl bg-purple-600/30 flex items-center justify-center">
                   <span className="text-2xl">📁</span>
                 </div>
+                <p className="absolute flex gap-2 justify-center align-middle top-2 right-5 text-gray-400 text-sm font-medium mt-2">
+                  <FaCircleInfo className="mt-[3px]" />
+                    View details
+                  </p>
               </div>
-            </div>
+            </button>
           </div>
         </section>
 

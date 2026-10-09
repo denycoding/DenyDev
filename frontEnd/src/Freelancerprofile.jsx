@@ -56,8 +56,8 @@ function Freelancerprofile() {
 
     phone: "",
     location: "",
-    website: "",
-
+    portfolio: "",
+createdAt: "",
     title: "",
     bio: "",
     rating: 0,
@@ -104,8 +104,8 @@ function Freelancerprofile() {
 
             phone: profile.phone || "",
             location: profile.location || "",
-            website: profile.website || "",
-
+            portfolio: profile.portfolio || "",
+            createdAt: profile.createdAt || "",
             title: profile.title || "",
             bio: profile.bio || "",
             rating: profile.rating ?? 0,
@@ -128,8 +128,8 @@ function Freelancerprofile() {
 
             phone: "",
             location: "",
-            website: "",
-
+            portfolio: "",
+            createdAt: "",  
             title: "",
             bio: "",
             rating: 0,
@@ -138,7 +138,7 @@ function Freelancerprofile() {
             projects: 0,
             hourlyRate: 0,
 
-            skills: [],
+            skills: [], 
           });
 
           setImagePreview(user.image || "");
@@ -523,7 +523,7 @@ function Freelancerprofile() {
 
         location: formData.location.trim(),
 
-        website: formData.website.trim(),
+        portfolio: formData.portfolio.trim(),
 
         title: formData.title.trim(),
 
@@ -562,7 +562,7 @@ function Freelancerprofile() {
 
           phone: profile.phone || "",
           location: profile.location || "",
-          website: profile.website || "",
+          portfolio: profile.portfolio || "",
 
           title: profile.title || "",
           bio: profile.bio || "",
@@ -636,7 +636,7 @@ function Freelancerprofile() {
 
           location: profile.location || "",
 
-          website: profile.website || "",
+          portfolio: profile.portfolio || "",
 
           title: profile.title || "",
 
@@ -660,6 +660,7 @@ function Freelancerprofile() {
       console.error("Error restoring profile:", error);
     }
   };
+
 
   // =========================================================
   // INPUT STYLE
@@ -987,7 +988,7 @@ function Freelancerprofile() {
 
               <span className="flex items-center gap-2">
                 <Calendar size={15} />
-                Joined after registration
+                {formData.createdAt || "Creation date not added"}
               </span>
             </div>
 
@@ -1178,8 +1179,8 @@ function Freelancerprofile() {
                 />
 
                 <input
-                  name="website"
-                  value={formData.website}
+                  name="portfolio"
+                  value={formData.portfolio}
                   onChange={handleChange}
                   disabled={!editMode}
                   placeholder="https://yourportfolio.com"

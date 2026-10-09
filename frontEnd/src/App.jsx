@@ -23,6 +23,7 @@ import Clients from "./Admin/Clients";
 import Freelancers from "./Admin/Freelancers";
 import ClientDetail from "./Admin/ClientDetail";
 import FreelancerDetails from "./Admin/FreelancerDetails";
+import Projects from "./Admin/Projects";
 function App() {
   return (
     <>
@@ -47,8 +48,8 @@ function App() {
           <Route path="/freelancer/:userId" element={<FreelancerDetail />} />
           <Route path="/project/:projectId" element={<Freelancerproposal />} />
           <Route path="/admindashboard" element={<Admindashboard />} />
-          <Route path="/clients" element={<Clients />} />
-          <Route path="/freelancers" element={<Freelancers />} />
+          <Route path="/admin/clients" element={<Clients />} />
+          <Route path="/admin/freelancers" element={<Freelancers />} />
           <Route
             path="/clientprojects/:projectId"
             element={<ClientViewProject />}
@@ -65,8 +66,12 @@ function App() {
             path="/clientmessages/:freelancerId?"
             element={<ClientMessages />}
           />
-          <Route path="/client/:clientId" element={<ClientDetail />} />
-          <Route path="/freelance/:userId" element={<FreelancerDetails />} />
+          <Route path="/admin/client/:clientId" element={<ClientDetail />} />
+          <Route
+            path="/admin/freelancer/:userId"
+            element={<FreelancerDetails />}
+          />
+          <Route path="/admin/projects" element={<Projects />} />
         </Routes>
       </BrowserRouter>
     </>

@@ -116,9 +116,9 @@ bg-[#4C1D95]/100
                 {/* Users (placeholder — replace with your real admin route) */}
                 <li>
                   <button
-                    onClick={() => handleNavigate("/clients")}
+                    onClick={() => handleNavigate("/admin/clients")}
                     className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200 ${
-                      isActive("/clients")
+                      isActive("/admin/clients")
                         ? "bg-purple-500/20 text-white border border-purple-400/30"
                         : "text-white/80 hover:bg-purple-500/20 hover:text-white hover:border-purple-400/30 border border-transparent"
                     }`}
@@ -132,9 +132,9 @@ bg-[#4C1D95]/100
                 {/* Projects (placeholder — replace with your real admin route) */}
                 <li>
                   <button
-                    onClick={() => handleNavigate("/freelancers")}
+                    onClick={() => handleNavigate("/admin/freelancers")}
                     className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200 ${
-                      isActive("/freelancers")
+                      isActive("/admin/freelancers")
                         ? "bg-purple-500/20 text-white border border-purple-400/30"
                         : "text-white/80 hover:bg-purple-500/20 hover:text-white hover:border-purple-400/30 border border-transparent"
                     }`}
@@ -188,9 +188,9 @@ bg-[#4C1D95]/100
 
                 <li>
                   <button
-                    onClick={() => handleNavigate("/clients")}
+                    onClick={() => handleNavigate("/admin/clients")}
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${
-                      isActive("/clients")
+                      isActive("/admin/clients")
                         ? "bg-purple-800 text-white"
                         : "text-white hover:bg-purple-800"
                     }`}
@@ -202,9 +202,9 @@ bg-[#4C1D95]/100
 
                 <li>
                   <button
-                    onClick={() => handleNavigate("/freelancers")}
+                    onClick={() => handleNavigate("/admin/freelancers")}
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${
-                      isActive("/freelancers")
+                      isActive("/admin/freelancers")
                         ? "bg-purple-800 text-white"
                         : "text-white hover:bg-purple-800"
                     }`}

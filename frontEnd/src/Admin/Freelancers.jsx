@@ -141,7 +141,7 @@ function Freelancers() {
                         <td className="px-6 py-4">
                           <button
                             onClick={() =>
-                              navigate(`/freelance/${freelancer.userId}`)
+                              navigate(`/admin/freelancer/${freelancer.userId}`)
                             }
                             className="px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-sm transition"
                           >

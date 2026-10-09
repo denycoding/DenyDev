@@ -1296,7 +1296,7 @@ router.get("/freelancerprofile", async (req, res) => {
         userId: user._id,
         fullName: user.fullName,
         email: user.email,
-        createdAt: user.registeredAt || user.createdAt,
+        createdAt: user.createdAt || user.createdAt,
         name: profile?.name || user.fullName,
         skills: profile?.skills || [],
         title: profile?.title || "",
@@ -1594,6 +1594,96 @@ router.get("/recent-projects", async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Failed to fetch recent projects",
+    });
+  }
+});
+router.get("/admin/projects", async (req, res) => {
+  try {
+    const jobs = await PostJob.find().sort({ createdAt: -1 });
+
+    // Collect hired freelancer IDs and fetch their names in one query
+    const freelancerIds = jobs
+      .map((job) => job.assignedFreelancerId)
+      .filter(Boolean);
+
+    const freelancers = await User.find(
+      { _id: { $in: freelancerIds } },
+      "fullName",
+    );
+
+    const nameMap = new Map();
+    freelancers.forEach((f) => {
+      nameMap.set(String(f._id), f.fullName);
+    });
+
+    const projects = jobs.map((job) => ({
+      ...job.toObject(),
+      assignedFreelancerName: job.assignedFreelancerId
+        ? nameMap.get(String(job.assignedFreelancerId)) || ""
+        : "",
+    }));
+
+    res.status(200).json({
+      success: true,
+      projects,
+    });
+  } catch (error) {
+    console.error("Admin Get Projects Error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch projects",
+    });
+  }
+});
+ 
+
+router.get("/top-freelancers", async (req, res) => {
+  try {
+    // Exclude freelancers whose account has been blocked by an admin
+    const blockedUsers = await User.find({ accountType: "Blocked" }, "_id");
+    const blockedIds = blockedUsers.map((u) => u._id);
+
+    const freelancers = await FreelancerProfile.aggregate([
+      { $match: { userId: { $nin: blockedIds } } },
+
+      // Count reviews so ties on rating are broken by number of reviews
+      {
+        $addFields: {
+          reviewCount: { $size: { $ifNull: ["$reviews", []] } },
+        },
+      },
+
+      { $sort: { rating: -1, reviewCount: -1, createdAt: -1 } },
+      { $limit: 6 },
+
+      // Public-safe fields only (no email, phone, etc.)
+      {
+        $project: {
+          _id: 0,
+          userId: 1,
+          name: 1,
+          title: 1,
+          skills: 1,
+          rating: 1,
+          reviewCount: 1,
+          experience: 1,
+          hourlyRate: 1,
+          image: 1,
+        },
+      },
+    ]);
+
+    res.status(200).json({
+      success: true,
+      freelancers,
+    });
+  } catch (error) {
+    console.error("Top Freelancers Error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch top freelancers",
     });
   }
 });
