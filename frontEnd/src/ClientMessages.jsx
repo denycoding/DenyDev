@@ -43,7 +43,6 @@ function ClientMessages() {
     if (!client?.id) return;
 
     socket.connect();
-    socket.emit("register", client.id);
 
     return () => socket.disconnect();
   }, []);
@@ -145,7 +144,6 @@ function ClientMessages() {
     if (!message.trim() || !selectedChat) return;
 
     socket.emit("sendMessage", {
-      senderId: client.id,
       receiverId: selectedChat.userId,
       text: message,
     });
