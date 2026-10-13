@@ -3,43 +3,39 @@ const authMiddleware = require("../middleware/authMiddleware");
 const roleMiddleware = require("../middleware/roleMiddleware");
 const router = express.Router();
 
-router.post(
-  "/generate-description",
-  authMiddleware,
-  roleMiddleware("client"),
-  async (req, res) => {
-    try {
-      const { title, skills, companyName } = req.body;
+router.post("/generate-description", async (req, res) => {
+  try {
+    const { title, skills, companyName } = req.body;
 
-      // Validate project title
-      if (typeof title !== "string" || !title.trim()) {
-        return res.status(400).json({
-          message: "Please enter a valid project title.",
-        });
-      }
-
-      // Validate Gemini API key
-      if (!process.env.GEMINI_API_KEY) {
-        return res.status(500).json({
-          message: "Gemini API key is not configured.",
-        });
-      }
-
-      // Prepare skills
-      const safeSkills = Array.isArray(skills)
-        ? skills.join(", ")
-        : typeof skills === "string"
-          ? skills
-          : "Not specified";
-
-      // Import Gemini SDK dynamically to work with CommonJS
-      const { GoogleGenAI } = await import("@google/genai");
-
-      const ai = new GoogleGenAI({
-        apiKey: process.env.GEMINI_API_KEY,
+    // Validate project title
+    if (typeof title !== "string" || !title.trim()) {
+      return res.status(400).json({
+        message: "Please enter a valid project title.",
       });
+    }
 
-      const prompt = `
+    // Validate Gemini API key
+    if (!process.env.GEMINI_API_KEY) {
+      return res.status(500).json({
+        message: "Gemini API key is not configured.",
+      });
+    }
+
+    // Prepare skills
+    const safeSkills = Array.isArray(skills)
+      ? skills.join(", ")
+      : typeof skills === "string"
+        ? skills
+        : "Not specified";
+
+    // Import Gemini SDK dynamically to work with CommonJS
+    const { GoogleGenAI } = await import("@google/genai");
+
+    const ai = new GoogleGenAI({
+      apiKey: process.env.GEMINI_API_KEY,
+    });
+
+    const prompt = `
 You are a professional freelance project description writer
 for DenyDev, a freelance marketplace.
 
@@ -123,32 +119,31 @@ STEP 3: DESCRIPTION REQUIREMENTS
   category label, introduction, or explanation.
 `;
 
-      const response = await ai.interactions.create({
-        model: "gemini-2.5-flash-lite",
-        input: prompt,
-      });
+    const response = await ai.interactions.create({
+      model: "gemini-3.6-flash",
+      input: prompt,
+    });
 
-      const description = response.output_text?.trim();
+    const description = response.output_text?.trim();
 
-      if (!description) {
-        return res.status(502).json({
-          message: "Gemini returned an empty description. Please try again.",
-        });
-      }
-
-      return res.status(200).json({
-        success: true,
-        description,
-      });
-    } catch (error) {
-      console.error("Gemini description error:", error.message);
-
-      return res.status(500).json({
-        message: "Failed to generate description. Please try again.",
+    if (!description) {
+      return res.status(502).json({
+        message: "Gemini returned an empty description. Please try again.",
       });
     }
-  },
-);
+
+    return res.status(200).json({
+      success: true,
+      description,
+    });
+  } catch (error) {
+    console.error("Gemini description error:", error.message);
+
+    return res.status(500).json({
+      message: "Failed to generate description. Please try again.",
+    });
+  }
+});
 
 router.post("/generate-proposal", async (req, res) => {
   try {
