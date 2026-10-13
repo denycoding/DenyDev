@@ -51,26 +51,22 @@ const formatBudget = (amount) => {
   return Number.isFinite(value) ? `₹${value.toLocaleString("en-IN")}` : "N/A";
 };
 
- 
-  return (
-    <div className="group rounded-2xl border border-white/10 bg-white/[0.035] p-4 transition duration-200 hover:-translate-y-1 hover:border-purple-400/40 hover:bg-white/[0.06]">
-      <div className="mb-3 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2 text-sm text-slate-400">
-          <span className="rounded-lg bg-purple-500/15 p-2 text-purple-300">
-            <Icon size={16} />
-          </span>
-          {label}
-        </div>
-
-        
+return (
+  <div className="group rounded-2xl border border-white/10 bg-white/[0.035] p-4 transition duration-200 hover:-translate-y-1 hover:border-purple-400/40 hover:bg-white/[0.06]">
+    <div className="mb-3 flex items-center justify-between gap-3">
+      <div className="flex items-center gap-2 text-sm text-slate-400">
+        <span className="rounded-lg bg-purple-500/15 p-2 text-purple-300">
+          <Icon size={16} />
+        </span>
+        {label}
       </div>
-
-      <p className="break-words text-sm font-semibold leading-6 text-white">
-        {displayValue}
-      </p>
     </div>
-  );
-}
+
+    <p className="break-words text-sm font-semibold leading-6 text-white">
+      {displayValue}
+    </p>
+  </div>
+);
 
 function ViewProject() {
   const { id } = useParams();
@@ -133,8 +129,6 @@ function ViewProject() {
 
     return () => clearTimeout(timer);
   }, [toast]);
-
-  
 
   // Delete project
   const handleDelete = async () => {
@@ -511,8 +505,6 @@ function ViewProject() {
                         : description}
                     </p>
                   </div>
-
-                  
                 </div>
               )}
 
@@ -567,7 +559,7 @@ function ViewProject() {
                       icon={Copy}
                       label="Client ID"
                       value={project.clientId}
-                     />
+                    />
                   </div>
                 </div>
               )}
