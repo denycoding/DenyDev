@@ -221,7 +221,7 @@ function Projects() {
                             <div className="flex gap-2">
                               <button
                                 onClick={() =>
-                                  navigate(`/admin/viewprojects/${project._id}`)
+                                  navigate(`/admin/projects/${project._id}`)
                                 }
                                 className="px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-sm transition whitespace-nowrap"
                               >

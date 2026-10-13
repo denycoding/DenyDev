@@ -20,8 +20,7 @@ function ViewProject() {
         setError("");
 
         // This endpoint must exist in your backend.
-        const res = await API.get(`/admin/viewprojects/${id}`);
-
+        const res = await API.get(`/admin/projects/${id}`);
         if (res.data.success) {
           setProject(res.data.project);
         } else {
@@ -53,11 +52,11 @@ function ViewProject() {
       setError("");
 
       // This DELETE endpoint must exist in your backend.
-      const res = await API.delete(`/admin/viewprojects/${id}`);
+      const res = await API.delete(`/admin/projects/${id}`);
 
       if (res.data.success) {
         alert("Project deleted successfully.");
-        navigate("/admin/viewprojects");
+        navigate("/admin/projects");
       } else {
         setError(res.data.message || "Failed to delete project.");
       }
@@ -120,7 +119,7 @@ function ViewProject() {
         <div className="min-h-screen bg-[#10002b] p-6 text-white">
           <div className="mx-auto max-w-4xl">
             <button
-              onClick={() => navigate("/admin/viewprojects")}
+              onClick={() => navigate("/admin/projects")}
               className="mb-6 rounded-lg bg-purple-600 px-4 py-2 hover:bg-purple-700"
             >
               Back to Projects

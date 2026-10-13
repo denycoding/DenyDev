@@ -93,7 +93,7 @@ function App() {
             element={<FreelancerDetails />}
           />
           <Route path="/admin/projects" element={<Projects />} />
-          <Route path="/admin/viewprojects" element={<ViewProject />} />
+          <Route path="/admin/projects/:id" element={<ViewProject />} />
         </Route>
       </Routes>
     </BrowserRouter>
