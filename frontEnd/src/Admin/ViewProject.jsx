@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
+
 import { useNavigate, useParams } from "react-router-dom";
+
 import {
   ArrowLeft,
   BriefcaseBusiness,
@@ -19,13 +21,18 @@ import {
   Users,
   X,
 } from "lucide-react";
+
 import Adminheader from "./Adminheader";
+
 import API from "../API";
 
 const STATUS_STYLES = {
   open: "border-amber-400/30 bg-amber-400/10 text-amber-300",
+
   "in-progress": "border-sky-400/30 bg-sky-400/10 text-sky-300",
+
   completed: "border-emerald-400/30 bg-emerald-400/10 text-emerald-300",
+
   closed: "border-rose-400/30 bg-rose-400/10 text-rose-300",
 };
 
@@ -38,7 +45,9 @@ const formatDate = (date) => {
 
   return parsedDate.toLocaleDateString("en-IN", {
     day: "2-digit",
+
     month: "short",
+
     year: "numeric",
   });
 };
@@ -51,44 +60,61 @@ const formatBudget = (amount) => {
   return Number.isFinite(value) ? `₹${value.toLocaleString("en-IN")}` : "N/A";
 };
 
-return (
-  <div className="group rounded-2xl border border-white/10 bg-white/[0.035] p-4 transition duration-200 hover:-translate-y-1 hover:border-purple-400/40 hover:bg-white/[0.06]">
-    <div className="mb-3 flex items-center justify-between gap-3">
-      <div className="flex items-center gap-2 text-sm text-slate-400">
-        <span className="rounded-lg bg-purple-500/15 p-2 text-purple-300">
-          <Icon size={16} />
-        </span>
-        {label}
-      </div>
-    </div>
+function DetailCard({ icon: Icon, label, value }) {
+  const displayValue =
+    value === null || value === undefined || value === ""
+      ? "N/A"
+      : String(value);
 
-    <p className="break-words text-sm font-semibold leading-6 text-white">
-      {displayValue}
-    </p>
-  </div>
-);
+  return (
+    <div className="group rounded-2xl border border-white/10 bg-white/[0.035] p-4 transition duration-200 hover:-translate-y-1 hover:border-purple-400/40 hover:bg-white/[0.06]">
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 text-sm text-slate-400">
+          <span className="rounded-lg bg-purple-500/15 p-2 text-purple-300">
+            <Icon size={16} />
+          </span>
+
+          {label}
+        </div>
+      </div>
+
+      <p className="break-words text-sm font-semibold leading-6 text-white">
+        {displayValue}
+      </p>
+    </div>
+  );
+}
 
 function ViewProject() {
   const { id } = useParams();
+
   const navigate = useNavigate();
 
   const [project, setProject] = useState(null);
+
   const [loading, setLoading] = useState(true);
+
   const [error, setError] = useState("");
+
   const [deleting, setDeleting] = useState(false);
 
   const [activeTab, setActiveTab] = useState("overview");
+
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
+
   const [toast, setToast] = useState("");
 
   // Fetch project details
+
   useEffect(() => {
     let active = true;
 
     const fetchProject = async () => {
       try {
         setLoading(true);
+
         setError("");
 
         const res = await API.get(`/admin/projects/${id}`);
@@ -99,6 +125,7 @@ function ViewProject() {
           setProject(res.data.project);
         } else {
           setProject(null);
+
           setError("Project not found.");
         }
       } catch (err) {
@@ -122,6 +149,7 @@ function ViewProject() {
   }, [id]);
 
   // Automatically dismiss toast notifications
+
   useEffect(() => {
     if (!toast) return;
 
@@ -131,15 +159,18 @@ function ViewProject() {
   }, [toast]);
 
   // Delete project
+
   const handleDelete = async () => {
     try {
       setDeleting(true);
+
       setError("");
 
       const res = await API.delete(`/admin/projects/${id}`);
 
       if (res.data?.success) {
         setShowDeleteModal(false);
+
         setToast("Project deleted successfully!");
 
         setTimeout(() => {
@@ -147,6 +178,7 @@ function ViewProject() {
         }, 700);
       } else {
         setError(res.data?.message || "Failed to delete project.");
+
         setShowDeleteModal(false);
       }
     } catch (err) {
@@ -163,18 +195,23 @@ function ViewProject() {
   const status = String(project?.status || "open").toLowerCase();
 
   const statusLabel = status
+
     .replaceAll("-", " ")
+
     .replace(/\b\w/g, (character) => character.toUpperCase());
 
   const description = project?.description || "No description provided.";
 
   const tabs = [
     { id: "overview", label: "Overview", icon: BriefcaseBusiness },
+
     { id: "description", label: "Description", icon: FileText },
+
     { id: "client", label: "Client Details", icon: UserRound },
   ];
 
   // Loading screen
+
   if (loading) {
     return (
       <>
@@ -194,6 +231,7 @@ function ViewProject() {
   }
 
   // Project not found
+
   if (!project) {
     return (
       <>
@@ -233,6 +271,7 @@ function ViewProject() {
       <main className="min-h-screen bg-gradient-to-br from-[#10002b] via-[#16002f] to-[#240046] px-4 py-7 text-white sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           {/* Page heading */}
+
           <div className="mb-7 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
             <div>
               <button
@@ -270,6 +309,7 @@ function ViewProject() {
           </div>
 
           {/* Error message */}
+
           {error && (
             <div
               role="alert"
@@ -289,6 +329,7 @@ function ViewProject() {
           )}
 
           {/* Project hero */}
+
           <section className="relative mb-6 overflow-hidden rounded-3xl border border-purple-300/15 bg-gradient-to-br from-[#2a0752] via-[#210044] to-[#180035] p-6 shadow-xl sm:p-8">
             <div className="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full bg-purple-500/10 blur-3xl" />
 
@@ -302,6 +343,7 @@ function ViewProject() {
                     }`}
                   >
                     <span className="h-1.5 w-1.5 rounded-full bg-current" />
+
                     {statusLabel}
                   </span>
 
@@ -352,16 +394,22 @@ function ViewProject() {
           </section>
 
           {/* Quick information cards */}
+
           <section className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {[
               {
                 label: "Duration",
+
                 value: project.duration || "Not specified",
+
                 icon: Clock3,
               },
+
               {
                 label: "Posted On",
+
                 value: formatDate(project.createdAt),
+
                 icon: CalendarDays,
               },
             ].map(({ label, value, icon: Icon }) => (
@@ -375,6 +423,7 @@ function ViewProject() {
 
                 <div className="min-w-0">
                   <p className="text-xs text-slate-400">{label}</p>
+
                   <p className="mt-1 break-words text-sm font-semibold">
                     {value}
                   </p>
@@ -384,6 +433,7 @@ function ViewProject() {
           </section>
 
           {/* Interactive tabs */}
+
           <section className="overflow-hidden rounded-3xl border border-white/10 bg-[#180035]/90 shadow-xl">
             <div className="flex gap-1 overflow-x-auto border-b border-white/10 p-2 sm:p-3">
               {tabs.map(({ id: tabId, label, icon: Icon }) => (
@@ -398,6 +448,7 @@ function ViewProject() {
                   }`}
                 >
                   <Icon size={16} />
+
                   {label}
                 </button>
               ))}
@@ -405,6 +456,7 @@ function ViewProject() {
 
             <div className="p-5 sm:p-7">
               {/* Overview tab */}
+
               {activeTab === "overview" && (
                 <div>
                   <h2 className="text-xl font-bold">Project Information</h2>
@@ -467,6 +519,7 @@ function ViewProject() {
               )}
 
               {/* Description tab */}
+
               {activeTab === "description" && (
                 <div>
                   <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
@@ -509,6 +562,7 @@ function ViewProject() {
               )}
 
               {/* Client tab */}
+
               {activeTab === "client" && (
                 <div>
                   <h2 className="text-xl font-bold">Client Details</h2>
@@ -569,17 +623,20 @@ function ViewProject() {
       </main>
 
       {/* Toast notification */}
+
       {toast && (
         <div
           role="status"
           className="fixed bottom-5 right-5 z-[60] flex items-center gap-3 rounded-2xl border border-emerald-400/20 bg-[#16002f] px-5 py-4 text-sm font-medium text-white shadow-2xl"
         >
           <Check size={18} className="shrink-0 text-emerald-300" />
+
           <span>{toast}</span>
         </div>
       )}
 
       {/* Delete confirmation modal */}
+
       {showDeleteModal && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
