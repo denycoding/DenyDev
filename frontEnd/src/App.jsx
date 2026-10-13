@@ -87,7 +87,7 @@ function App() {
           <Route path="/adminprofile" element={<AdminProfile />} />
           <Route path="/admin/clients" element={<Clients />} />
           <Route path="/admin/client/:clientId" element={<ClientDetail />} />
-          <Route path="/admin/viewproject" element={<ViewProject />} />
+          <Route path="/admin/projects" element={<ViewProject />} />
           <Route path="/admin/freelancers" element={<Freelancers />} />
           <Route
             path="/admin/freelancer/:userId"
