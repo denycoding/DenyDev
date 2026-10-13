@@ -12,9 +12,9 @@ import API from "./API";
 
 const STATUS_STYLES = {
   pending: "bg-yellow-500/20 text-yellow-300",
-  accepted: "bg-green-500/20 text-green-300",
+  accepted: "bg-blue-500/20 text-green-300",
   rejected: "bg-red-500/20 text-red-300",
-  completed: "bg-red-500/20 text-red-300",
+  completed: "bg-green-500/20 text-green-300",
 };
 
 const STATUS_LABELS = {
@@ -62,7 +62,9 @@ function Freelancerproject() {
   const activeCount = proposals.filter((p) => p.status === "pending").length;
   const acceptedCount = proposals.filter((p) => p.status === "accepted").length;
   const rejectedCount = proposals.filter((p) => p.status === "rejected").length;
-  const completeedCount = proposals.filter((p) => p.status === "completed").length;
+  const completeedCount = proposals.filter(
+    (p) => p.status === "completed",
+  ).length;
 
   const tabs = ["All", "Pending", "Accepted", "Rejected", "Completed"];
 
