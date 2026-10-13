@@ -8,7 +8,11 @@ const { Server } = require("socket.io");
 
 dotenv.config();
 
-const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
+// One or more allowed frontend URLs, separated by commas
+const CLIENT_URLS = (process.env.CLIENT_URL || "http://localhost:5173")
+  .split(",")
+  .map((url) => url.trim().replace(/\/$/, ""))
+  .filter(Boolean);
 
 require("./config/cloudinary");
 
@@ -16,12 +20,13 @@ const Message = require("./models/Message");
 const User = require("./models/User");
 const userRoutes = require("./routes/UserRoutes");
 const aiRoutes = require("./routes/aiRoutes");
+
 // Initialize Express
 const app = express();
 const server = http.createServer(app);
 
 // Middleware
-app.use(cors({ origin: CLIENT_URL }));
+app.use(cors({ origin: CLIENT_URLS }));
 app.use(express.json());
 
 // Routes
@@ -36,7 +41,7 @@ app.get("/", (req, res) => {
 // Socket.IO configuration
 const io = new Server(server, {
   cors: {
-    origin: CLIENT_URL,
+    origin: CLIENT_URLS,
     methods: ["GET", "POST"],
   },
 });
@@ -58,7 +63,8 @@ io.use(async (socket, next) => {
 
     socket.userId = user._id.toString();
     next();
-  } catch {
+  } catch (err) {
+    console.error("Socket auth failed:", err.message);
     next(new Error("Unauthorized"));
   }
 });
@@ -100,10 +106,11 @@ io.on("connection", (socket) => {
     }
   });
 });
+
 // Check environment variables without printing secrets
 console.log("MONGO_URI:", process.env.MONGO_URI ? "Loaded" : "Not Loaded");
 console.log("JWT_SECRET:", process.env.JWT_SECRET ? "Loaded" : "Not Loaded");
-console.log("CLIENT_URL:", CLIENT_URL);
+console.log("CLIENT_URL:", CLIENT_URLS.join(", "));
 console.log(
   "GEMINI_API_KEY:",
   process.env.GEMINI_API_KEY ? "Loaded" : "Not Loaded",
