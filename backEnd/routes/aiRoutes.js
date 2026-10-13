@@ -124,7 +124,7 @@ STEP 3: DESCRIPTION REQUIREMENTS
 `;
 
       const response = await ai.interactions.create({
-        model: "gemini-3.6-flash",
+        model: "gemini-3.5-flash",
         input: prompt,
       });
 
