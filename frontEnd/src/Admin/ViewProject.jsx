@@ -278,10 +278,6 @@ function ViewProject() {
                 </span>
 
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-purple-300">
-                    Admin Workspace / Projects
-                  </p>
-
                   <h1 className="mt-1 text-2xl font-bold sm:text-3xl">
                     {project.title || "Untitled Project"}
                   </h1>
@@ -290,15 +286,6 @@ function ViewProject() {
             </div>
 
             <div className="flex flex-wrap gap-3">
-              <button
-                type="button"
-                onClick={() => copyToClipboard(project._id)}
-                className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm font-semibold transition hover:bg-white/10"
-              >
-                <Copy size={16} />
-                Copy Project ID
-              </button>
-
               <button
                 type="button"
                 onClick={() => setShowDeleteModal(true)}
@@ -396,16 +383,6 @@ function ViewProject() {
           <section className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {[
               {
-                label: "Project Type",
-                value: project.projectType || "Not specified",
-                icon: BriefcaseBusiness,
-              },
-              {
-                label: "Experience Level",
-                value: project.experienceLevel || "Not specified",
-                icon: ShieldCheck,
-              },
-              {
                 label: "Duration",
                 value: project.duration || "Not specified",
                 icon: Clock3,
@@ -475,12 +452,6 @@ function ViewProject() {
                       icon={BriefcaseBusiness}
                       label="Project Title"
                       value={project.title}
-                    />
-
-                    <DetailCard
-                      icon={CalendarDays}
-                      label="Deadline"
-                      value={formatDate(project.deadline)}
                     />
 
                     <DetailCard
@@ -632,10 +603,6 @@ function ViewProject() {
               )}
             </div>
           </section>
-
-          <p className="mt-5 text-center text-xs text-slate-500">
-            DenyDev Admin Workspace · Project Record Details
-          </p>
         </div>
       </main>
 
