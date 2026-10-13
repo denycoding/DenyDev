@@ -14,7 +14,7 @@ function TopDevelopers() {
   useEffect(() => {
     const fetchTopDevelopers = async () => {
       try {
-        const res = await API.get("/top-freelancers");
+        const res = await API.get("/top_freelancers");
 
         if (res.data.success) {
           setDevelopers(res.data.freelancers);
@@ -133,8 +133,6 @@ function TopDevelopers() {
                       </span>
                     </div>
                   </div>
-
-                 
 
                   {/* Skills */}
                   <div className="mt-4 mb-3">

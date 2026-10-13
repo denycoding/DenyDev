@@ -150,7 +150,7 @@ router.post("/login", async (req, res) => {
 });
 
 // TOP FREELANCERS (shown on the public home page)
-router.get("/top-freelancers", async (req, res) => {
+router.get("/top_freelancers", async (req, res) => {
   try {
     // Exclude freelancers whose account has been blocked by an admin
     const blockedUsers = await User.find({ accountType: "Blocked" }, "_id");
