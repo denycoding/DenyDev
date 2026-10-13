@@ -7,7 +7,6 @@ import { Sparkles, LoaderCircle } from "lucide-react";
 function PostJob() {
   const navigate = useNavigate();
   const [generating, setGenerating] = useState(false);
-  const [, setDescription] = useState("");
 
   // -----------------------------------------
   // Get logged-in client
