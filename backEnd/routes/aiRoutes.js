@@ -137,10 +137,11 @@ STEP 3: DESCRIPTION REQUIREMENTS
       description,
     });
   } catch (error) {
-    console.error("Gemini description error:", error.message);
+    console.error("Gemini description error:", error);
 
     return res.status(500).json({
       message: "Failed to generate description. Please try again.",
+      detail: error.message, // TEMPORARY, remove after debugging
     });
   }
 });
