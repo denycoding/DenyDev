@@ -1711,6 +1711,85 @@ router.get(
   },
 );
 
+// GET: Fetch one project's details for admin
+router.get(
+  "/admin/projects/:id",
+  authMiddleware,
+  roleMiddleware("admin"),
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      if (!mongoose.isValidObjectId(id)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid project ID",
+        });
+      }
+
+      const project = await PostJob.findById(id);
+
+      if (!project) {
+        return res.status(404).json({
+          success: false,
+          message: "Project not found",
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        project,
+      });
+    } catch (error) {
+      console.error("Get project details error:", error);
+
+      return res.status(500).json({
+        success: false,
+        message: "Failed to fetch project details",
+      });
+    }
+  },
+);
+// DELETE: Delete a project for admin
+router.delete(
+  "/admin/projects/:id",
+  authMiddleware,
+  roleMiddleware("admin"),
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      if (!mongoose.isValidObjectId(id)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid project ID",
+        });
+      }
+
+      const project = await PostJob.findByIdAndDelete(id);
+
+      if (!project) {
+        return res.status(404).json({
+          success: false,
+          message: "Project not found",
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: "Project deleted successfully",
+      });
+    } catch (error) {
+      console.error("Delete project error:", error);
+
+      return res.status(500).json({
+        success: false,
+        message: "Failed to delete project",
+      });
+    }
+  },
+);
+
 // =========================================================
 // EXPORT ROUTER
 // =========================================================
