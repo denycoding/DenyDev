@@ -148,9 +148,9 @@ function Projects() {
                     <tr className="text-left text-gray-400">
                       <th className="px-6 py-4">Sr. No.</th>
                       <th className="px-6 py-4">Project</th>
-                       <th className="px-6 py-4">Company</th>
+                      <th className="px-6 py-4">Company</th>
                       <th className="px-6 py-4">Budget</th>
-                       <th className="px-6 py-4">Posted On</th>
+                      <th className="px-6 py-4">Posted On</th>
                       <th className="px-6 py-4">Status</th>
                       <th className="px-6 py-4">Action</th>
                     </tr>
@@ -177,7 +177,6 @@ function Projects() {
                             <p className="truncate">{project.title || "N/A"}</p>
                           </td>
 
-                          
                           <td className="px-6 py-4 text-gray-300">
                             {project.companyName && (
                               <p className="text-l text-white">
@@ -197,8 +196,6 @@ function Projects() {
                               "en-IN",
                             )}
                           </td>
-
-                          
 
                           {/* POSTED ON */}
                           <td className="px-6 py-4 text-gray-400 whitespace-nowrap">
@@ -221,23 +218,16 @@ function Projects() {
 
                           {/* ACTION */}
                           <td className="px-6 py-4">
-                            
-<div className="flex gap-2">
-  <button
-    onClick={() => navigate(`/admin/projects/${project._id}`)}
-    className="px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-sm transition whitespace-nowrap"
-  >
-    View Project
-  </button>
-
-  <button
-    onClick={() => navigate(`/client/${project.clientId}`)}
-    className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm transition whitespace-nowrap"
-  >
-    View Client
-  </button>
-</div>
-
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() =>
+                                  navigate(`/admin/projects/${project._id}`)
+                                }
+                                className="px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-sm transition whitespace-nowrap"
+                              >
+                                View Project
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       );
