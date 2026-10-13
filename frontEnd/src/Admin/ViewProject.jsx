@@ -9,6 +9,7 @@ import {
   ChevronDown,
   CircleDollarSign,
   Clock3,
+  Copy,
   FileText,
   LoaderCircle,
   MessageSquareText,
@@ -50,22 +51,40 @@ const formatBudget = (amount) => {
   return Number.isFinite(value) ? `₹${value.toLocaleString("en-IN")}` : "N/A";
 };
 
-return (
-  <div className="group rounded-2xl border border-white/10 bg-white/[0.035] p-4 transition duration-200 hover:-translate-y-1 hover:border-purple-400/40 hover:bg-white/[0.06]">
-    <div className="mb-3 flex items-center justify-between gap-3">
-      <div className="flex items-center gap-2 text-sm text-slate-400">
-        <span className="rounded-lg bg-purple-500/15 p-2 text-purple-300">
-          <Icon size={16} />
-        </span>
-        {label}
-      </div>
-    </div>
+function DetailCard({ icon: Icon, label, value, onCopy }) {
+  const displayValue =
+    value === null || value === undefined || value === ""
+      ? "N/A"
+      : String(value);
 
-    <p className="break-words text-sm font-semibold leading-6 text-white">
-      {displayValue}
-    </p>
-  </div>
-);
+  return (
+    <div className="group rounded-2xl border border-white/10 bg-white/[0.035] p-4 transition duration-200 hover:-translate-y-1 hover:border-purple-400/40 hover:bg-white/[0.06]">
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 text-sm text-slate-400">
+          <span className="rounded-lg bg-purple-500/15 p-2 text-purple-300">
+            <Icon size={16} />
+          </span>
+          {label}
+        </div>
+
+        {onCopy && displayValue !== "N/A" && (
+          <button
+            type="button"
+            onClick={() => onCopy(displayValue)}
+            title={`Copy ${label}`}
+            className="rounded-lg p-2 text-slate-400 transition hover:bg-white/10 hover:text-white"
+          >
+            <Copy size={14} />
+          </button>
+        )}
+      </div>
+
+      <p className="break-words text-sm font-semibold leading-6 text-white">
+        {displayValue}
+      </p>
+    </div>
+  );
+}
 
 function ViewProject() {
   const { id } = useParams();
@@ -128,6 +147,16 @@ function ViewProject() {
 
     return () => clearTimeout(timer);
   }, [toast]);
+
+  // Copy text to clipboard
+  const copyToClipboard = async (value) => {
+    try {
+      await navigator.clipboard.writeText(String(value));
+      setToast("Copied to clipboard!");
+    } catch {
+      setToast("Unable to copy. Please copy manually.");
+    }
+  };
 
   // Delete project
   const handleDelete = async () => {
@@ -261,6 +290,15 @@ function ViewProject() {
             </div>
 
             <div className="flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={() => copyToClipboard(project._id)}
+                className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm font-semibold transition hover:bg-white/10"
+              >
+                <Copy size={16} />
+                Copy Project ID
+              </button>
+
               <button
                 type="button"
                 onClick={() => setShowDeleteModal(true)}
@@ -470,6 +508,13 @@ function ViewProject() {
                     />
 
                     <DetailCard
+                      icon={UserRound}
+                      label="Assigned Freelancer ID"
+                      value={project.assignedFreelancerId}
+                      onCopy={copyToClipboard}
+                    />
+
+                    <DetailCard
                       icon={ShieldCheck}
                       label="Project Status"
                       value={statusLabel}
@@ -517,6 +562,15 @@ function ViewProject() {
                         : description}
                     </p>
                   </div>
+
+                  <button
+                    type="button"
+                    onClick={() => copyToClipboard(description)}
+                    className="mt-4 inline-flex items-center gap-2 rounded-xl bg-purple-600/20 px-4 py-2.5 text-sm font-semibold text-purple-200 transition hover:bg-purple-600/30"
+                  >
+                    <Copy size={15} />
+                    Copy Description
+                  </button>
                 </div>
               )}
 
@@ -567,7 +621,12 @@ function ViewProject() {
                       value={project.clientName}
                     />
 
-                  
+                    <DetailCard
+                      icon={Copy}
+                      label="Client ID"
+                      value={project.clientId}
+                      onCopy={copyToClipboard}
+                    />
                   </div>
                 </div>
               )}
