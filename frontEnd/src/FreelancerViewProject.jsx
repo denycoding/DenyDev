@@ -30,7 +30,7 @@ function FreelancerViewProject() {
   // =====================================================
   // FETCH PROJECT + MY PROPOSAL
   // =====================================================
- 
+
   useEffect(() => {
     const fetchData = async () => {
       const freelancerId = freelancer?._id || freelancer?.id;
@@ -75,7 +75,6 @@ function FreelancerViewProject() {
     if (myProposal?.progress !== undefined) {
       setProgress(myProposal.progress);
     }
-    
   }, [myProposal]);
 
   // =====================================================
@@ -302,25 +301,6 @@ function FreelancerViewProject() {
                 <p className="text-gray-300 leading-7 whitespace-pre-line">
                   {project.description}
                 </p>
-              </div>
-
-              {/* REQUIRED SKILLS */}
-
-              <div className="mb-8">
-                <h2 className="text-xl font-bold text-white mb-4">
-                  Required Skills
-                </h2>
-
-                <div className="flex flex-wrap gap-3">
-                  {(project.skills || []).map((skill, index) => (
-                    <span
-                      key={index}
-                      className="px-4 py-2 bg-white/10 border border-white/10 rounded-lg text-gray-200 text-sm"
-                    >
-                      {skill}
-                    </span>
-                  ))}
-                </div>
               </div>
 
               {/* PROJECT DETAILS */}
