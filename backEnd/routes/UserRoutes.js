@@ -51,13 +51,6 @@ router.post("/register", async (req, res) => {
       });
     }
 
-    if (password.length < 8) {
-      return res.status(400).json({
-        success: false,
-        message: "Password must be at least 8 characters",
-      });
-    }
-
     const normalizedEmail = email.trim().toLowerCase();
 
     const existingUser = await User.findOne({
@@ -269,20 +262,13 @@ router.post("/resend-otp", async (req, res) => {
 
     const otp = crypto.randomInt(100000, 1000000).toString();
 
-    pendingUser.otpHash = crypto
-      .createHash("sha256")
-      .update(otp)
-      .digest("hex");
+    pendingUser.otpHash = crypto.createHash("sha256").update(otp).digest("hex");
 
     pendingUser.otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
     pendingUser.resendAvailableAt = new Date(Date.now() + 60 * 1000);
     pendingUser.attempts = 0;
 
-    await sendOtpEmail(
-      pendingUser.email,
-      pendingUser.fullName,
-      otp
-    );
+    await sendOtpEmail(pendingUser.email, pendingUser.fullName, otp);
 
     await pendingUser.save();
 
