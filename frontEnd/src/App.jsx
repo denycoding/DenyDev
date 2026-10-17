@@ -27,6 +27,7 @@ import FreelancerDetails from "./Admin/FreelancerDetails";
 import Projects from "./Admin/Projects";
 import AdminProfile from "./Admin/Adminprofile";
 import ViewProject from "./Admin/ViewProject";
+import Verify from "./Verify";
 
 const Guard = ({ role }) => (
   <ProtectedRoute role={role}>
@@ -42,7 +43,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-
+        <Route path="/verify" element={<Verify />} />
         {/* Client only */}
         <Route element={<Guard role="client" />}>
           <Route path="/clientdashboard" element={<Clientdashboard />} />

@@ -372,9 +372,9 @@ function ViewProject() {
                   <p className="text-lg font-bold">
                     {formatBudget(project.budgetMin)}
                   </p>
-
-                  <p className="mt-1 text-xs text-slate-400">
-                    to {formatBudget(project.budgetMax)}
+                  <p className="text-center">-</p>
+                  <p className="text-lg font-bold">
+                    {formatBudget(project.budgetMax)}
                   </p>
                 </div>
 
@@ -670,7 +670,7 @@ function ViewProject() {
               <Trash2 size={25} />
             </div>
 
-            <h2 id="delete-project-title" className="text-xl font-bold">
+            <h2 className="text-xl text-red-600 font-bold">
               Delete This Project?
             </h2>
 

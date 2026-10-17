@@ -3,6 +3,9 @@ const router = express.Router();
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs"); // or "bcrypt", whichever you installed
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
+const PendingRegistration = require("../models/PendingRegistration");
+const sendOtpEmail = require("../config/brevo");
 
 const FreelancerProfile = require("../models/FreelancerProfile");
 const Message = require("../models/Message");
@@ -29,13 +32,12 @@ const denied = (res) =>
 // =========================================================
 // PUBLIC ROUTES (no token needed)
 // =========================================================
-
-// REGISTER
+// REGISTER: Send OTP, but do not create the user yet
 router.post("/register", async (req, res) => {
   try {
     const { fullName, email, role, password } = req.body;
 
-    if (!fullName || !email || !role || !password) {
+    if (!fullName?.trim() || !email?.trim() || !role || !password) {
       return res.status(400).json({
         success: false,
         message: "Please fill all fields",
@@ -49,7 +51,18 @@ router.post("/register", async (req, res) => {
       });
     }
 
-    const existingUser = await User.findOne({ email });
+    if (password.length < 8) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 8 characters",
+      });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const existingUser = await User.findOne({
+      email: normalizedEmail,
+    });
 
     if (existingUser) {
       return res.status(400).json({
@@ -58,20 +71,153 @@ router.post("/register", async (req, res) => {
       });
     }
 
+    const existingPending = await PendingRegistration.findOne({
+      email: normalizedEmail,
+    });
+
+    // Avoid repeatedly sending OTPs
+    if (existingPending && existingPending.resendAvailableAt > new Date()) {
+      return res.status(429).json({
+        success: false,
+        message: "Please wait before requesting another OTP",
+      });
+    }
+
+    const otp = crypto.randomInt(100000, 1000000).toString();
+    const otpHash = crypto.createHash("sha256").update(otp).digest("hex");
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = new User({
-      fullName,
-      email,
+    const pendingData = {
+      fullName: fullName.trim(),
+      email: normalizedEmail,
       role,
       password: hashedPassword,
+      otpHash,
+      otpExpiresAt: new Date(Date.now() + 10 * 60 * 1000),
+      resendAvailableAt: new Date(Date.now() + 60 * 1000),
+      attempts: 0,
+    };
+
+    await PendingRegistration.findOneAndUpdate(
+      { email: normalizedEmail },
+      { $set: pendingData },
+      { upsert: true, new: true, runValidators: true },
+    );
+
+    try {
+      await sendOtpEmail(normalizedEmail, fullName.trim(), otp);
+    } catch (emailError) {
+      await PendingRegistration.deleteOne({
+        email: normalizedEmail,
+      });
+      throw emailError;
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "OTP sent to your email",
+    });
+  } catch (error) {
+    console.error("Registration Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Could not start registration. Please try again.",
+    });
+  }
+});
+
+// VERIFY OTP AND CREATE USER
+router.post("/verify-otp", async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+
+    if (!email || !/^\d{6}$/.test(String(otp || ""))) {
+      return res.status(400).json({
+        success: false,
+        message: "Enter a valid 6-digit OTP",
+      });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const pendingUser = await PendingRegistration.findOne({
+      email: normalizedEmail,
+    });
+
+    if (!pendingUser) {
+      return res.status(400).json({
+        success: false,
+        message: "Registration expired or not found. Please register again.",
+      });
+    }
+
+    if (pendingUser.otpExpiresAt <= new Date()) {
+      await PendingRegistration.deleteOne({ _id: pendingUser._id });
+
+      return res.status(400).json({
+        success: false,
+        message: "OTP expired. Please register again.",
+      });
+    }
+
+    if (pendingUser.attempts >= 5) {
+      await PendingRegistration.deleteOne({ _id: pendingUser._id });
+
+      return res.status(429).json({
+        success: false,
+        message: "Too many incorrect attempts. Please register again.",
+      });
+    }
+
+    const submittedHash = crypto
+      .createHash("sha256")
+      .update(String(otp))
+      .digest("hex");
+
+    if (submittedHash !== pendingUser.otpHash) {
+      pendingUser.attempts += 1;
+      await pendingUser.save();
+
+      return res.status(400).json({
+        success: false,
+        message: "Incorrect OTP",
+      });
+    }
+
+    // Protect against an account created by another request
+    const existingUser = await User.findOne({
+      email: normalizedEmail,
+    });
+
+    if (existingUser) {
+      await PendingRegistration.deleteOne({
+        _id: pendingUser._id,
+      });
+
+      return res.status(400).json({
+        success: false,
+        message: "User Already Exists",
+      });
+    }
+
+    const newUser = new User({
+      fullName: pendingUser.fullName,
+      email: pendingUser.email,
+      role: pendingUser.role,
+      password: pendingUser.password,
     });
 
     const savedUser = await newUser.save();
 
-    res.status(201).json({
+    await PendingRegistration.deleteOne({
+      _id: pendingUser._id,
+    });
+
+    return res.status(201).json({
       success: true,
-      message: "Registration Successfully",
+      message: "Email verified and registration successful",
       user: {
         id: savedUser._id,
         fullName: savedUser.fullName,
@@ -80,11 +226,76 @@ router.post("/register", async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Registration Error:", error);
+    console.error("OTP Verification Error:", error);
 
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
-      message: "Registration Failed",
+      message: "OTP verification failed. Please try again.",
+    });
+  }
+});
+
+// RESEND OTP
+router.post("/resend-otp", async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email?.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: "Email is required",
+      });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const pendingUser = await PendingRegistration.findOne({
+      email: normalizedEmail,
+    });
+
+    if (!pendingUser) {
+      return res.status(404).json({
+        success: false,
+        message: "Pending registration not found. Please register again.",
+      });
+    }
+
+    if (pendingUser.resendAvailableAt > new Date()) {
+      return res.status(429).json({
+        success: false,
+        message: "Please wait before resending the OTP",
+      });
+    }
+
+    const otp = crypto.randomInt(100000, 1000000).toString();
+
+    pendingUser.otpHash = crypto
+      .createHash("sha256")
+      .update(otp)
+      .digest("hex");
+
+    pendingUser.otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
+    pendingUser.resendAvailableAt = new Date(Date.now() + 60 * 1000);
+    pendingUser.attempts = 0;
+
+    await sendOtpEmail(
+      pendingUser.email,
+      pendingUser.fullName,
+      otp
+    );
+
+    await pendingUser.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "A new OTP has been sent",
+    });
+  } catch (error) {
+    console.error("Resend OTP Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Could not resend OTP. Please try again.",
     });
   }
 });
@@ -1083,6 +1294,54 @@ router.patch(
   },
 );
 
+router.patch(
+  "/proposals/:proposalId/reject",
+  authMiddleware,
+  roleMiddleware("client"),
+  async (req, res) => {
+    try {
+      const { proposalId } = req.params;
+
+      const proposal = await Proposal.findById(proposalId);
+
+      if (!proposal) {
+        return res.status(404).json({
+          success: false,
+          message: "Proposal not found",
+        });
+      }
+
+      // Check whether the logged-in client owns this proposal
+      if (!sameId(proposal.clientId, req.user._id)) {
+        return denied(res);
+      }
+
+      // Prevent rejecting an accepted proposal
+      if (proposal.status === "accepted") {
+        return res.status(400).json({
+          success: false,
+          message: "An accepted proposal cannot be rejected",
+        });
+      }
+
+      proposal.status = "rejected";
+      await proposal.save();
+
+      return res.status(200).json({
+        success: true,
+        message: "Proposal rejected successfully",
+        proposal,
+      });
+    } catch (error) {
+      console.error("Reject Proposal Error:", error);
+
+      return res.status(500).json({
+        success: false,
+        message: "Failed to reject proposal",
+      });
+    }
+  },
+);
 // UPDATE PROPOSAL PROGRESS (only the freelancer or client on that proposal)
 router.patch(
   "/proposals/:proposalId/progress",

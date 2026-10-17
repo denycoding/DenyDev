@@ -4,9 +4,9 @@ import {
   Search,
   SlidersHorizontal,
   CalendarDays,
-  DollarSign,
   MoreVertical,
 } from "lucide-react";
+import { FaRupeeSign } from "react-icons/fa";
 import Freelancerheader from "./Freelancerheader";
 import API from "./API";
 
@@ -216,11 +216,11 @@ function Freelancerproject() {
                 {/* Your Bid and Deadline */}
                 <div className="flex justify-between mb-5">
                   <div className="flex items-center gap-2">
-                    <DollarSign size={18} className="text-purple-300" />
+                    <FaRupeeSign size={18} className="text-purple-300" />
                     <div>
                       <p className="text-xs text-purple-300">Your Bid</p>
                       <p className="font-semibold">
-                        ₹{Number(p.bidAmount || 0).toLocaleString("en-IN")}
+                        {Number(p.bidAmount || 0).toLocaleString("en-IN")}
                       </p>
                     </div>
                   </div>
@@ -230,7 +230,7 @@ function Freelancerproject() {
                     <div>
                       <p className="text-xs text-purple-300">Deadline</p>
                       <p className="font-semibold">
-                        {p.projectId?.deadline || "Not set"}
+                        {p.deliveryTime || "Not set"}
                       </p>
                     </div>
                   </div>

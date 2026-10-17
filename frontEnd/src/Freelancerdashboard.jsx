@@ -241,7 +241,7 @@ function Freelancerdashboard() {
 
         <div className="mb-8">
           <h1 className="text-white text-2xl sm:text-3xl font-bold">
-            Welcome, {user?.name || user?.fullName || "Freelancer"} 👋
+            Welcome, {user?.name || user?.fullName || "Freelancer"}👋
           </h1>
         </div>
 

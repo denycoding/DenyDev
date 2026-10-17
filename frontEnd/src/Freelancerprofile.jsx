@@ -1054,7 +1054,7 @@ function Freelancerprofile() {
                   <span className="text-xs">Projects</span>
                 </div>
 
-                <p className="text-xl font-bold mt-1">
+                <p className="text-xl font-bold mt-1 ml-5">
                   {formData.projects || 0}
                 </p>
               </div>
@@ -1066,7 +1066,7 @@ function Freelancerprofile() {
                   <span className="text-xs">Experience</span>
                 </div>
 
-                <p className="text-xl font-bold mt-1">
+                <p className="text-xl font-bold mt-1 ml-5">
                   {formData.experience || "Not Set"}
                 </p>
               </div>
@@ -1078,7 +1078,7 @@ function Freelancerprofile() {
                   <span className="text-xs">Rating</span>
                 </div>
 
-                <p className="text-xl font-bold mt-1">
+                <p className="text-xl font-bold mt-1 ml-5">
                   {formData.rating ? formData.rating.toFixed(1) : "0.0"}
                 </p>
               </div>
@@ -1090,8 +1090,8 @@ function Freelancerprofile() {
                   <span className="text-xs">Hourly Rate</span>
                 </div>
 
-                <p className="text-xl font-bold mt-1">
-                  {formData.hourlyRate ? `₹${formData.hourlyRate}` : "Not Set"}
+                <p className="text-xl font-bold mt-1 ml-5">
+                  {formData.hourlyRate ? `${formData.hourlyRate}` : "Not Set"}
                 </p>
               </div>
             </div>
